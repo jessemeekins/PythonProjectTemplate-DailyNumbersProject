@@ -3,7 +3,7 @@ import logging
 from abc import ABC, abstractmethod
 from data.FileTypeFormatter import Formatters
 
-log = logging.Logger('default_logger.log')
+log = logging.Logger('.//default_logger.log')
 
 class DataUploaderClass(ABC):
     @abstractmethod
@@ -17,12 +17,11 @@ class DataUploaderClass(ABC):
 
 class XMLFileUploader(DataUploaderClass):
     def file_importer(self) -> str:
-        file_name = Formatters.XML_importer() 
-        print(f"[*] {file_name}")
+        file_name = Formatters.XMLFormatterClass.XML_file_name()
         return file_name
         
     def load_data(self):
-        return Formatters.XMLFormatterClass.XML_importer()
+        return Formatters.XMLFormatterClass.XML_file_data()
  
 
 class XLSXFileUploader(DataUploaderClass):
@@ -52,18 +51,22 @@ class PatternClass(ABC):
 
 
 class PatternClassMethod_1(PatternClass):
-    def function_1(self, arg: None) -> None:
+    def function_1(self, arg: dict) -> list:
         if arg:
-            for child in arg.iter('Record'):
-                data = Formatters.XMLFormatterClass.XML_fields_mapper(child)
-                print(data)
-
+            ALS_record = list(map(lambda x: x["company"] ,filter(lambda x: x["position"] =='1.1', arg.values())))
             print("[*] PatternClassMethod_1::function_1 executed")
+            return ALS_record
         else: ...
-    def function_2(self, arg: None) -> None:
+     
+    def function_2(self, arg: list) -> None: 
         if arg:
-            print("[*] PatternClassMethod_1::function_2 executed")
-        else: ...
+            print("[*] Recieved List")
+            l = len(list(set(arg)))
+            filtered_list = list(filter(lambda x: "BC" not in x, filter(lambda x: "EU" not in x, arg)))
+            print("[*] Count:" , len(list(filtered_list)) )
+            print(sorted(filtered_list))
+
+        else: ... 
 
 class PatternClassMethod_2(PatternClass):
     def function_1(self, arg: None) -> None:
@@ -74,6 +77,7 @@ class PatternClassMethod_2(PatternClass):
         if arg:
             print("[*] PatternClassMethod_2::function_2 executed")
         else: ...
+
 
 def execute(method:str) -> PatternClass:
     registered_methods = {
@@ -90,7 +94,9 @@ def main(method:str) -> None:
     source = class_pattern.uploader.load_data()
     parsed_data = class_pattern.function_1(source)
     data = class_pattern.function_2(parsed_data)
-    print(f"[*] Execution Complete on :: {file}")
+    complete_time = Formatters.DatetimeTimeFormatter.local_timestamp()
+    print(f"[{complete_time}] Execution completed on file name :: {file}")
+
 
 if __name__ == "__main__":
     choice = input("Method choice ('one', 'two')?")

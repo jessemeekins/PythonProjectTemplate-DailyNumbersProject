@@ -1,11 +1,12 @@
 #%%
+from dateutil import tz
+from datetime import datetime, timedelta
+
+
 class XMLFormatterClass:
-    def XML_file_name():
-        from datetime import datetime, timedelta
-        today = datetime.today() - timedelta(hours=7)
-        formatted_time = datetime.strftime(today, "%Y-%m-%d")
-        # Use For Prod
-        file_name =  f"ROS11 MFD{formatted_time}.xml"
+    def XML_file_name() -> str:
+        time = DatetimeTimeFormatter.shift_start_end_adjust()
+        file_name =  f"ROS11 MFD{time}.xml"
         return file_name
     
     def XML_importer(): 
@@ -52,8 +53,22 @@ class XMLFormatterClass:
             # Logging error to log file
             #print(e)
             # Returning Nonetype, record will not be added to class dict
-            return None
+            pass
 
+    def XML_file_data():
+        arg = XMLFormatterClass.XML_importer()
+        if arg:
+            records = {}
+            for child in arg.iter('Record'):
+                try:
+                    data = XMLFormatterClass.XML_fields_mapper(child)
+                    records[data["EID"]] = {"name": data["NAME"], "rank": data["RANK"], "position": data["POSITION"], "company": data["COMP"]}
+                except:
+                    pass
+            return records
+        
+        
+        else: ...
 
 class XLSXFormatterClass:
     def XLSX_importer() -> str:
@@ -61,4 +76,20 @@ class XLSXFormatterClass:
         today = datetime.today() - timedelta(hours=7)
         formatted_time = datetime.strftime(today, "%Y-%m-%d")
         return f"ROS11 MFD{formatted_time}.xlsx"
+    
 
+class DatetimeTimeFormatter:
+    def utc_timestamp():
+        return datetime.now(tz=tz.tzutc())
+        
+    def local_timestamp():
+        return datetime.now(tz=tz.tzlocal())
+
+    def shift_start_end_adjust():
+        return  datetime.today() - timedelta(hours=7)
+       
+       
+class TelestaffFileExportFormatter:
+    def ParRadioExportFileFormat():
+        shift_adjusted_time = DatetimeTimeFormatter.shift_start_end_adjust()
+        return f"ROS11 MFD{shift_adjusted_time}.xml"

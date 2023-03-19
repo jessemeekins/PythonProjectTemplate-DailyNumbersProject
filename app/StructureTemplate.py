@@ -1,7 +1,7 @@
 #%%
 import logging
 from abc import ABC, abstractmethod
-from data.FileTypeFormatter import formaters
+from data.FileTypeFormatter import Formatters
 
 log = logging.Logger('default_logger.log')
 
@@ -17,21 +17,21 @@ class DataUploaderClass(ABC):
 
 class XMLFileUploader(DataUploaderClass):
     def file_importer(self) -> str:
-        file_name = formaters.XML_importer() 
+        file_name = Formatters.XML_importer() 
         print(f"[*] {file_name}")
         return file_name
         
-    def load_data(self, filepath: str) -> dict:
-        pass
+    def load_data(self):
+        return Formatters.XMLFormatterClass.XML_importer()
+ 
 
 class XLSXFileUploader(DataUploaderClass):
     def file_importer(self) -> str:
-        file_name = formaters.XLSX_importer()
-        print(f"[*] {file_name}")
-        return super().file_importer()
+        file_name = Formatters.XLSXFormatterClass.XLSX_importer()
+        return file_name
     
     def load_data(self):
-        return super().load_data()
+        ...
 
 class PatternClass(ABC):
     def __init__(self, uploader: DataUploaderClass) -> None:
@@ -52,20 +52,28 @@ class PatternClass(ABC):
 
 
 class PatternClassMethod_1(PatternClass):
-    def function_1(self) -> None:
-        print("[*] PatternClassMethod_1::function_1 executed")
+    def function_1(self, arg: None) -> None:
+        if arg:
+            for child in arg.iter('Record'):
+                data = Formatters.XMLFormatterClass.XML_fields_mapper(child)
+                print(data)
 
-    def function_2(self) -> None:
-        print("[*] PatternClassMethod_1::function_2 executed")
-
+            print("[*] PatternClassMethod_1::function_1 executed")
+        else: ...
+    def function_2(self, arg: None) -> None:
+        if arg:
+            print("[*] PatternClassMethod_1::function_2 executed")
+        else: ...
 
 class PatternClassMethod_2(PatternClass):
-    def function_1(self) -> None:
-        print("[*] PatternClassMethod_2::function_1 executed")
-        
-    def function_2(self) -> None:
-        print("[*] PatternClassMethod_2::function_2 executed")
-
+    def function_1(self, arg: None) -> None:
+        if arg:
+            print("[*] PatternClassMethod_2::function_1 executed")
+        else: ...
+    def function_2(self, arg: None) -> None:
+        if arg:
+            print("[*] PatternClassMethod_2::function_2 executed")
+        else: ...
 
 def execute(method:str) -> PatternClass:
     registered_methods = {
@@ -78,11 +86,11 @@ def execute(method:str) -> PatternClass:
 
 def main(method:str) -> None:
     class_pattern = execute(method=method)
-    class_pattern.uploader.file_importer()
-    class_pattern.uploader.load_data()
-    class_pattern.function_1()
-    class_pattern.function_2()
-    print("[*] Execution Complete")
+    file = class_pattern.uploader.file_importer()
+    source = class_pattern.uploader.load_data()
+    parsed_data = class_pattern.function_1(source)
+    data = class_pattern.function_2(parsed_data)
+    print(f"[*] Execution Complete on :: {file}")
 
 if __name__ == "__main__":
     choice = input("Method choice ('one', 'two')?")

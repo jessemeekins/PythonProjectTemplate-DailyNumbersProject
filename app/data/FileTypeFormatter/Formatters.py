@@ -1,17 +1,19 @@
-#%%
+
 from dateutil import tz
+from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 
 
 class XMLFormatterClass:
     def XML_file_name() -> str:
-        time = DatetimeTimeFormatter.shift_start_end_adjust()
-        file_name =  f"ROS11 MFD{time}.xml"
-        return file_name
+        from datetime import datetime, timedelta
+        today = datetime.today() - timedelta(hours=7)
+        formatted_time = datetime.strftime(today, "%Y-%m-%d")
+        return f"ROS11 MFD{formatted_time}.xml"
     
-    def XML_importer(): 
+    def XML_importer(current_file_date: str): 
         import xml.etree.ElementTree as ET
-        tree = ET.parse("/Users/jessemeekins/Documents/XML_EXPORTS/ROS11 MFD2023-03-16.xml")
+        tree = ET.parse(f"/Users/jessemeekins/Documents/XML_EXPORTS/{current_file_date}")
         root = tree.getroot()
         return root
     
@@ -55,19 +57,19 @@ class XMLFormatterClass:
             # Returning Nonetype, record will not be added to class dict
             pass
 
-    def XML_file_data():
-        arg = XMLFormatterClass.XML_importer()
+    def XML_file_data() -> dict:
+        current_date_format = XMLFormatterClass.XML_file_name()
+        arg = XMLFormatterClass.XML_importer(current_date_format)
         if arg:
             records = {}
             for child in arg.iter('Record'):
                 try:
                     data = XMLFormatterClass.XML_fields_mapper(child)
-                    records[data["EID"]] = {"name": data["NAME"], "rank": data["RANK"], "position": data["POSITION"], "company": data["COMP"]}
+                    records[data["EID"]] = {"name": data["NAME"], "rank": data["RANK"], "position": data["POSITION"], "company": data["COMP"], "paycode": data["PAYCODE"], "end": data["END"]}
                 except:
                     pass
             return records
-        
-        
+
         else: ...
 
 class XLSXFormatterClass:
@@ -79,17 +81,40 @@ class XLSXFormatterClass:
     
 
 class DatetimeTimeFormatter:
-    def utc_timestamp():
+    def utc_timestamp() -> datetime:
         return datetime.now(tz=tz.tzutc())
         
-    def local_timestamp():
+    def local_timestamp() -> datetime:
         return datetime.now(tz=tz.tzlocal())
 
-    def shift_start_end_adjust():
-        return  datetime.today() - timedelta(hours=7)
+    def shift_start_end_adjust() -> str:
+        today = datetime.today() - timedelta(hours=7)
+        formatted_time = datetime.strftime(today, "%Y-%m-%d")
+        print(formatted_time)
+        return formatted_time
        
        
-class TelestaffFileExportFormatter:
-    def ParRadioExportFileFormat():
-        shift_adjusted_time = DatetimeTimeFormatter.shift_start_end_adjust()
-        return f"ROS11 MFD{shift_adjusted_time}.xml"
+class TelestaffFileImport(ABC):
+    @abstractmethod
+    def file_name_method(self, file):
+        """Uploder Functions"""
+        return f"{file}.xml"
+
+class ParRadioExportFile(TelestaffFileImport):
+    def file_name_method(self):
+        formatted_date = DatetimeTimeFormatter.shift_start_end_adjust()
+        file = f"ROS11 MFD{formatted_date}"
+        return super().class_file_uploader(file)
+       
+
+
+
+class FilePath(ABC):
+    @abstractmethod
+    def file_path_method(self, file_path):
+        return f'{file_path}'
+
+class LocalFilePathUpload(FilePath):
+    def file_path_method(self):
+        file_path = "/Users/jessemeekins/Documents/XML_EXPORTS/"
+        return super().file_path_method(file_path)

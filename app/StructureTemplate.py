@@ -11,7 +11,6 @@ class DataUploaderClass(ABC):
         """file importer"""
 
 
-
 class XMLFileUploader(DataUploaderClass):
     def file_importer(self) -> str:
         file_name = Formatters.XMLFormatterClass.XML_file_name()
@@ -39,6 +38,7 @@ class PatternClass(ABC):
 
     def execute(self): ...
 
+
 class ALSCountClassMethod(PatternClass):
     def class_function(self, arg: dict) -> list:
         if arg:
@@ -56,15 +56,13 @@ class RosterFilterClass(ABC):
     @abstractmethod
     def class_function(self, arg: dict, *args, **kwargs):
         """Filtered mon rank"""
-
         if args:
             try:
                 records = list(map(lambda x: (x["company"], x["name"], x["paycode"]) ,filter(lambda x: x["rank"] == args[0], arg.values())))
                 return records
             except:
                 pass
-        else:
-            ...
+        else: ...
 
 
 class LieutenantClassMethod(RosterFilterClass):
@@ -80,8 +78,6 @@ class DivisionChiefClassMethod(RosterFilterClass):
         return super().class_function(arg, 'DC')
 
       
-
-    
 class OvertimeCallBackMethod(PatternClass):
     def class_function(self, arg: dict) -> list:
         if arg:

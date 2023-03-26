@@ -1,0 +1,20 @@
+INFO:root:[2023-03-25 15:41:20.386478] SSHClient initialized
+INFO:root:[2023-03-25 15:41:20.386478] SSHClient connected
+INFO:root:[2023-03-25 15:41:20.386478] SFTP connected
+INFO:root:[2023-03-25 15:41:20.386478] File Downloaded
+INFO:root:[2023-03-25 15:41:20.386478] Script Complete
+INFO:root:[2023-03-25 15:43:07.198431] SSHClient initialized
+INFO:root:[2023-03-25 15:43:07.198431] SSHClient connected
+INFO:root:[2023-03-25 15:43:07.198431] SFTP connected
+INFO:root:[2023-03-25 15:43:19.457817] SSHClient initialized
+INFO:root:[2023-03-25 15:43:19.457817] SSHClient connected
+INFO:root:[2023-03-25 15:43:19.457817] SFTP connected
+INFO:root:[2023-03-25 15:43:19.457817] FROM: 158.228.129.229 FILE: ROS11 MFD2023-03-25.xml
+INFO:root:[2023-03-25 15:43:19.457817] File Downloaded
+INFO:root:[2023-03-25 15:43:19.457817] Script Complete
+INFO:root:[2023-03-25 15:47:34.941456] SSHClient initialized
+INFO:root:[2023-03-25 15:47:34.941456] SSHClient connected
+INFO:root:[2023-03-25 15:47:34.941456] SFTP connected
+INFO:root:[2023-03-25 15:47:34.941456] FROM: 158.228.129.229 FILE: ROS11 MFD2023-03-25.xml
+INFO:root:[2023-03-25 15:47:34.941456] File Downloaded
+INFO:root:[2023-03-25 15:47:34.941456] Script Complete

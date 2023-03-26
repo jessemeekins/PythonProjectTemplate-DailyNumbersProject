@@ -1,7 +1,13 @@
 #%%
 import logging
+from FileConfig import *
+from SFTP import SFTPClient
 from abc import ABC, abstractmethod
 from data.FileTypeFormatter import Formatters
+
+
+par_file_data = FileConfig("PAR").get_file_data()
+
 
 log = logging.Logger('.//default_logger.log')
 
@@ -13,7 +19,7 @@ class DataUploaderClass(ABC):
 
 class XMLFileUploader(DataUploaderClass):
     def file_importer(self) -> str:
-        file_name = Formatters.XMLFormatterClass.XML_file_name()
+        file_name = par_file_data.get("filename")
 
         return file_name, Formatters.XMLFormatterClass.XML_file_data() 
 

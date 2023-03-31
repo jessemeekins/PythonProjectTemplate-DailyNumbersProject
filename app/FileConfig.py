@@ -11,7 +11,14 @@ formatted_time = datetime.strftime(today, "%Y-%m-%d")
 class FileConfig:
 
     configuration = {
-        "PAR" : {"port": PORT, "username": SFTP_USERNAME, "password": SFTP_PASSWORD,"location":IP_ADDRESS, "extension":FILE_EXTENSION, "destination": LOCAL_PATH, "filename": f'ROS11 MFD{formatted_time}.xml', "debug": True},
+        "PAR" : {"port": PORT, 
+        "username": SFTP_USERNAME, 
+        "password": SFTP_PASSWORD,
+        "location":IP_ADDRESS, 
+        "extension":FILE_EXTENSION, 
+        "destination": LOCAL_PATH, 
+        "filename": f'ROS11 MFD{formatted_time}.xml', 
+        "debug": True},
     }
 
     def __init__(self, config: str) -> None:

@@ -2,10 +2,14 @@
 
 from app.secrets import *
 from dataclasses import dataclass
-
 from datetime import datetime, timedelta
-today = datetime.today() - timedelta(hours=7)
-formatted_time = datetime.strftime(today, "%Y-%m-%d")
+
+def adjusted_time():
+    today = datetime.today() - timedelta(hours=7)
+    formatted_time = datetime.strftime(today, "%Y-%m-%d")
+    return formatted_time
+    
+formatted_time = adjusted_time()
 
 @dataclass
 class FileConfig:

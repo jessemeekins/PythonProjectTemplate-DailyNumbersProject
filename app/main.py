@@ -1,7 +1,8 @@
 #%%
 from collections import namedtuple
 from typing import Protocol
-from ProjectClasses.DataProccessingClass import DataProccessing, DataParser
+from ProjectClasses.DataFilters import ALS
+from ProjectClasses.DataParser import DataParser
 from ProjectClasses.Importer import XmlImporter
 from ProjectClasses.DateAndTimeClass import DateTimeFormatter
 from ProjectClasses.Mapper import XmlAlsFieldsMap
@@ -45,15 +46,13 @@ def main(arg: str,verbose=False) -> None:
 
     instantiated_class = fac(file.filepath, file.filename)
     raw_file_data = instantiated_class.importer()
-    parsed_data = DataParser(raw_file_data, XmlAlsFieldsMap).package()
-    _data = DataProccessing(parsed_data)
-    comp = _data.list_als_companies()
-
-    
+    parsed_data = DataParser(raw_file_data, XmlAlsFieldsMap).xml_into_dictionary()
+    test = ALS(parsed_data)
+    d = test.list_als_companies()
     complete_time = DateTimeFormatter.local_timestamp()
     print(f"[*] Proccessing complete: {complete_time}")
     if verbose:
-        print("[*]", comp)
+        print("[*]", d)
 
 if __name__ == "__main__":
  

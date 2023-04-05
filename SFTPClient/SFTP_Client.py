@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/
 
 """
 Copyright (c) 2023 Jesse Meekins

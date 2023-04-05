@@ -1,5 +1,6 @@
 #%%
 import itertools
+from DateAndTimeClass import DateTimeFormatter
 
 def even(x) -> bool:
     return x%2==0 
@@ -38,3 +39,6 @@ except:
 
 def first_true(iterable, default=False, pred=None):
     return next(filter(pred, iterable), default)
+
+#   records = list(filter(lambda x: "BC0" not in x, filter(lambda x: "EU0" not in x, ALS_record)))
+#   ALS_record = list(map(lambda x: x["current_company"] ,filter(lambda x: 'EMTP' in x["profile_specialties"], self.data.values())))

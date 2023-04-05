@@ -1,6 +1,6 @@
 #%%
 
-from app.secrets import *
+from SFTPClient._secrets import Secrets
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
@@ -15,12 +15,12 @@ formatted_time = adjusted_time()
 class FileConfig:
 
     configuration = {
-        "PAR" : {"port": PORT, 
-        "username": SFTP_USERNAME, 
-        "password": SFTP_PASSWORD,
-        "location":IP_ADDRESS, 
-        "extension":FILE_EXTENSION, 
-        "destination": LOCAL_PATH, 
+        "PAR" : {"port": Secrets.PORT, 
+        "username": Secrets.SFTP_USERNAME, 
+        "password": Secrets.SFTP_PASSWORD,
+        "location":Secrets.IP_ADDRESS, 
+        "extension":Secrets.FILE_EXTENSION, 
+        "destination": Secrets.LOCAL_PATH, 
         "filename": f'ROS11 MFD{formatted_time}.xml', 
         "debug": True},
     }

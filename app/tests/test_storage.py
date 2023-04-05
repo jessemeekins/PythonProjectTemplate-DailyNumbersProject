@@ -1,6 +1,7 @@
 #%%
 
 import pytest
+from app.Retry import retry
 
 try:
     import mylib
@@ -24,3 +25,12 @@ def test_mylib():
 def test_skip_at_runtime():
     if True:
         pytest.skip("Finally, I dont want to run it.")
+
+def test_file_client(self):
+    print(self.debug, "::",  self.filename)
+
+@retry(Exception, tries=4)
+def retry_test(self):
+    print('_____---_____')
+    
+    raise Exception('Error::Test')

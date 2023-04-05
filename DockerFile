@@ -1,0 +1,29 @@
+# Download Ubuntu Docker image
+FROM ubuntu:22.04
+
+# Wworking directory
+WORKDIR /app
+
+# requirements.txt
+COPY ./requirements.txt /app
+RUN pip install --no-cache-dir --upgrade -requirements.txt
+# What files to copy and where
+COPY . /app
+# Get Updates if any and install crontab to docker container
+RUN apt-get update && apt-get install cron -y
+
+
+# Command to make File Executable
+RUN chmod +x SFTP_Client.py
+
+# Add file to filepath
+ADD crontab /ect/cron.d/my-cron-file
+
+# Change permissions
+RUN chmod 0644 /ect/cron.d/my-cron-file
+
+# Run command
+RUN crontab /ect/cron.d/my-cron-file
+
+
+

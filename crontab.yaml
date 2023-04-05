@@ -1,0 +1,10 @@
+# * * * * * command to be executed
+# | | | | |
+# | | | | |
+# | | | | |
+# | | | | |___________________ Day of the week (0-6) (Sunday to Saturday)
+# | | | | __________________ Month of the year (1-12)
+# | | | __________________ Day of the month (1-31)
+# | |___________________ Hour (0-23)
+# |___________________ Minute (0-59)
+

@@ -1,2 +1,5 @@
-secrets.py
+_secrets.py
 SFTP_logs.log 
+*.pyc
+*.cpython*
+exports/*

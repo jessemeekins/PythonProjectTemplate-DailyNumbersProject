@@ -3,3 +3,4 @@ SFTP_logs.log
 *.pyc
 *.cpython*
 exports/*
+app/data/exports/

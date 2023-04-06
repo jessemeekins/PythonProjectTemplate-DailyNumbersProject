@@ -1,6 +1,8 @@
 from datetime import datetime
 
 class DataFilters:
+    def __init__(self) -> None:
+        pass
 
     @staticmethod
     def ISO_8601_reformatter(start_and_end_time: tuple) -> tuple[datetime,datetime]:

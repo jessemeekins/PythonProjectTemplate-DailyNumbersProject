@@ -2,6 +2,9 @@ from dateutil import tz
 from datetime import datetime, timedelta
 
 class DateTimeFormatter:
+    def __init__(self) -> None:
+        pass
+        
     def utc_timestamp() -> datetime:
         return datetime.now(tz=tz.tzutc())
         

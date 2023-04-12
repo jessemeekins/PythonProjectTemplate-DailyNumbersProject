@@ -24,7 +24,6 @@ SOFTWARE.
 
 import logging
 import paramiko
-from Retry import retry
 from FileConfig import FileConfig
 from abc import ABC, abstractmethod
 from datetime import datetime as dt
@@ -95,19 +94,15 @@ class SFTPPutClass(SFTPClient):
         
 
 
-def main(report: str, debug=True):
-    config = FileConfig(report).get_file_data()
-    if debug:
-        print(config)
-        print("Test Complete")
-    else:
-        SFTPGetClass(config).file_transfer()
+def SFTP_MAIN(configs, debug=True):
 
+        config = FileConfig(configs).get_file_data()
+        if debug:
+            print(config)
+            print("Test Complete")
+        else:
+            SFTPGetClass(config).file_transfer()
 
-
-if __name__ == "__main__":
-
-    main("DEV", debug=False)
 
 
 

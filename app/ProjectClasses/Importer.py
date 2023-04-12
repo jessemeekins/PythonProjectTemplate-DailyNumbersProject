@@ -19,15 +19,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+#%%
+import xml.etree.ElementTree as ET
+from filepaths import FILE_PATH_FACTORY
 
 class XmlImporter:
+    """Initialized with filepath: str and filename: str"""
     def __init__(self,filepath: str, filename: str) -> None:
         self.filepath = filepath
         self.filename = filename
-         
+      
     def importer(self): 
-        import xml.etree.ElementTree as ET
+        """Located the file to parse and return xml.etree.ElementTree obj"""
         tree = ET.parse(f"{self.filepath}{self.filename}")
         root = tree.getroot()
         return root
     
+f = FILE_PATH_FACTORY["ALS"]
+f.filepath, f.filename

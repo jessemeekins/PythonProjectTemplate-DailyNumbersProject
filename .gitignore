@@ -4,3 +4,4 @@ SFTP_logs.log
 *.cpython*
 exports/*
 app/data/exports/
+/.eggs/

@@ -21,6 +21,7 @@ SOFTWARE.
 """
 
 from datetime import datetime
+from openpyxl import Workbook
 
 class DataFilters:
     def __init__(self) -> None:
@@ -56,15 +57,21 @@ class DataFilters:
     @staticmethod
     def _company_abrev_first_two_letters(data:str):
         return data["current_company"][0:2]
-        
-
+    
+    @staticmethod
+    def _paycode(data:dict) -> str:
+        return data["paycode"]
+    
+    @staticmethod
+    def _shift(data:dict) -> str:
+        return data["shift"]
 
 
 class ALS(DataFilters):
     def __init__(self, data: dict) -> None:
         self.data = data
     
-    def list_als_companies(self):
+    def list_als_companies(self) -> dict:
         """Mini Procotcal method for finding ALS companies in service"""
         
         als_dict = dict()
@@ -88,3 +95,41 @@ class ALS(DataFilters):
                 ...
         return als_dict
     
+    def als_count(self) -> int:
+        comp = self.list_als_companies()
+        fire_comp = [c for c in comp.keys() if "PU" in c or "TR" in c or "RC" in c]
+        return len(fire_comp)
+
+    
+class PayCodeFilters(DataFilters):
+    def __init__(self, data) -> None:
+        self.data: dict = data
+
+    def all_records(self) -> dict:
+        return self.data
+            
+    def to_excel(self):
+        wb = Workbook()
+        ws = wb.active
+
+        ws.append(["SHIFT", "COMPANY", "EID", "RANK", "LAST_NAME", "FIRST_NAME", "GROUPS"])
+        for d in self.data.values():
+            if d["pay_info"] == "FD Pay Info 1":
+                shift = [s[0] for s in d["specialities"] if "SH" in s]
+                if shift:
+                    shift = shift[0]
+                else:
+                    shift = "No shift listed"
+                comp = [c for c in d["specialities"] if "PU" in c or "TR" in c or "RC" in c or "QT" in c or "BC" in c]
+                if comp:
+                    comp = comp[0]
+                else:
+                    comp = "No company listed"
+                
+                entry= [shift, str(comp), d["eid"], d["rank"], d["last_name"], d["first_name"], d["groups"]]
+                ws.append(entry)
+
+                print(shift, comp, d["eid"], d["rank"], d["last_name"], d["first_name"], d["groups"], sep=", ")
+
+        #wb.save("/Users/jessemeekins/Desktop/Person_export.xlsx")
+        wb.close()

@@ -25,68 +25,74 @@ from abc import ABC, abstractmethod
 class DataFieldsMapper(ABC):
     """Data Field Mappers for Various reports"""
     def __init__(self) -> None:
-        super().__init__()
-
-    @abstractmethod
-    def field_mapper(self, record) -> dict:
         ...
 
+    @abstractmethod
+    def field_mapper(self) -> list[tuple]:
+        """Returns mapping to XML file in tuple format"""
+        ...
+
+    def __call__(self, record, fields) -> dict:
+        """Maps list of tuples to fields in XML file and handles errors and special cases"""
+        payload = dict()
+        for field in fields:
+            try:
+                data = record.find(field[1]).text
+                if data:
+                    if field[0] == 'specialities':
+                        spec_list = data.split(',')
+                        payload[field[0]] = spec_list
+                    else:
+                        payload[field[0]] = data
+                else:
+                    payload[field[0]] = "Not listed"
+            except:
+                payload[field[0]] = "Not listed"
+        print(payload)
+        return payload
+      
+
 class XmlAlsFieldsMap(DataFieldsMapper):
-    def field_mapper(self, record) -> dict:
-        try:
-            try:
-                profile_specialties = record.find('RscFormulaIDCh').text
-            except:
-                profile_specialties = 'Uknown'
+    def field_mapper(self, record) -> list[tuple]:
+        fields = [
+            ("specialties" ,'RscFormulaIDCh'),
+            ("rank", 'PosJobAbrvCh'),
+            ("company", 'PUnitAbrvCh'),
+            ("shift_start", 'StaffingStartDt'),
+            ("shift_end", 'ShiftEndDt'),
+        ]
+        return super().__call__(record=record, fields=fields)
             
-            rank_of_person = record.find('PosJobAbrvCh').text
-            current_company = record.find('PUnitAbrvCh').text
-            shift_start = record.find('StaffingStartDt').text
-            shift_end = record.find('ShiftEndDt').text
 
-            payload = {
-                'rank_of_person':rank_of_person, 
-                'profile_specialties':profile_specialties, 
-                'current_company':current_company, 
-                'shift_start_and_end': (shift_start, shift_end)
-            }    
-            return payload
-        except Exception as e:
-            pass
+class FullExportFieldsMapper(DataFieldsMapper):
+    def field_mapper(self, record) -> list[tuple]:
+        fields = [
+            ("is_working", 'WstatIsWorkingGm'),
+            ("shift", 'ShiftAbrvCh'),
+            ("paycode" , 'WstatAbrvCh'),
+            ("region", 'RegionAbrvCh'),
+            ("station", 'StationAbrvCh'),
+            ("unit", 'PUnitAbrvCh'),
+            ("rank", 'PosJobAbrvCh'),
+            ("shift_start", 'StaffingStartDt'),
+            ("shift_end", 'ShiftEndDt'),
+            ("specialties",'RscFormulaIDCh'),
+        ]
 
+        return super().__call__(record=record, fields=fields)
+        
 
-class FullEXportFieldsMapper(DataFieldsMapper):
-    def field_mapper(self, record) -> dict:
-        try:
-            shift = record.find('ShiftAbrvCh').text
-            is_working = record.find('WstatIsWorkingGm').text
-            shift_start = record.find('StaffingStartDt').text
-            shift_end = record.find('ShiftEndDt').text
-            region =record.find('RegionAbrvCh').text
-            station =record.find('StationAbrvCh').text
-            unit = record.find('PUnitAbrvCh').text
-            rank = record.find('PosJobAbrvCh').text
-            shift_start = record.find('StaffingStartDt').text
-            shift_end = record.find('ShiftEndDt').text
-            paycode = record.find('WstatAbrvCh').text
-            try:
-                specialties = record.find('RscFormulaIDCh').text
-            except:
-                specialties = 'Uknown'
-            
-            payload = {
-                "shift": shift,
-                "is_working": is_working,
-                'shift_start_and_end': (shift_start, shift_end),
-                "region": region,
-                "station": station,
-                "unit": unit,
-                "rank": rank,
-                "paycode": paycode,
-                "specialties": specialties
-            }
-            return payload
-        except:
-            pass
-
-
+class AssignmentExportMapper(DataFieldsMapper):
+    def field_mapper(self, record) -> list[tuple]:
+        fields = [
+            ("eid", 'RscMaster_EmployeeID_Ch'),
+            ("rank", 'Job_Abrv_Ch'),
+            ("full_rank", 'Rsc_Desc_Ch'),
+            ("last_name" ,'RscMaster_LName_Ch'),
+            ("first_name", 'RscMaster_FName_Ch'),
+            ("specialities", 'Spec_Skill_In'),
+            ("groups", 'Group_Skill_In'),
+            ("pay_info", "PayInfo_Name_Ch")
+        ]
+        
+        return super().__call__(record=record, fields=fields)

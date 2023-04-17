@@ -1,4 +1,9 @@
 #%%
+"""
+Copyright (c) 2023 Jesse Meekins
+See project 'license' file for more informations
+"""
+
 from SFTPClient._secrets import Secrets
 
 import os

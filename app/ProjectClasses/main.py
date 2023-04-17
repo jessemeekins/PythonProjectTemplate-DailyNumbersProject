@@ -1,68 +1,67 @@
+
 #%%
 """
 Copyright (c) 2023 Jesse Meekins
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+See project 'license' file for more informations
 """
 
 from typing import Type
 from dataclasses import dataclass
 
-from importer import XmlImporter
-from dataparser import DataParser
-from datafilters import PayCodeFilters
-from dateandtimeclass import DateTimeFormatter
+from dataparser import (
+    DataParser,
+    XmlDataParser)
+from importer import (
+    XmlImporter,
+    Importer,
+    )
+from datafilters import (
+    ReportTypeClass,
+    AlsCompanyReport,
+    AssignmentReport,
+    FullRosterReport,
+    )
 from mapper import (
     DataFieldsMapper, 
     XmlAlsFieldsMap, 
     FullExportFieldsMapper, 
     AssignmentExportMapper
-)
+    )
 from filepaths import FILE_PATH_FACTORY
+from dateandtimeclass import DateTimeFormatter
+
+now = DateTimeFormatter.local_timestamp()
 
 
 @dataclass
 class FileCompose:
-    importer: XmlImporter
+    importer: Importer
     mapper: DataFieldsMapper
     parser: DataParser
+    report: ReportTypeClass
 
 @dataclass
 class FileFactoryExporter:
-    importer_class: Type[XmlImporter]
+    importer_class: Type[Importer]
     mapper_class: Type[DataFieldsMapper]
     parser_class: Type[DataParser]
+    report_class: Type[ReportTypeClass]
 
     def __call__(self) -> FileCompose:
         return FileCompose(
             self.importer_class,
             self.mapper_class,
-            self.parser_class
+            self.parser_class,
+            self.report_class
         )
 
 FACTORY = {
-    "ALS" : FileFactoryExporter(XmlImporter,XmlAlsFieldsMap, DataParser),
-    "FULL" : FileFactoryExporter(XmlImporter, FullExportFieldsMapper, DataParser),
-    "PPL": FileFactoryExporter(XmlImporter,AssignmentExportMapper, DataParser)
+    "ALS" : FileFactoryExporter(XmlImporter,XmlAlsFieldsMap, XmlDataParser, AlsCompanyReport),
+    "FULL" : FileFactoryExporter(XmlImporter, FullExportFieldsMapper, XmlDataParser, FullRosterReport),
+    "PPL": FileFactoryExporter(XmlImporter,AssignmentExportMapper, XmlDataParser, AssignmentReport)
     }
 
-def factory_builder(arg: str) -> dict:
+def factory_builder(arg: str, *args, **kwargs) -> dict :
     """Initializes the factory classes and sets file paths"""
     # function located in filepath.py
     # Has __call__, will concat into complete file path ex. ->f()
@@ -77,26 +76,28 @@ def factory_builder(arg: str) -> dict:
     parser = conf.parser_class
     # Predefined field mapping based on report type and need
     mapper = conf.mapper_class
-    
+    # Predefined report class object
+    report = conf.report_class
     # File data after XML has been parsed into workable data 
     raw_file_data = importer(path, file).importer()
     # File parser takes in raw data and filters throught the mapper class
     full_data = parser(raw_file_data, mapper())
-    # within parser.py we now add all data to a python dict
-    full_data.xml_into_dictionary()
+    #full_data = report(full_data)
+    return report(full_data())
 
-def main(arg: str, verbose=False) -> None:
+
+def main(arg: str, verbose=False, *args, **kwargs) -> None:
     
-    factory_builder(arg)
-    #### TO DO #####
-    # CREATE Factory patterns for data proccessing 
+    _data = factory_builder(arg)
+    for k in _data():
+        print(k)
+        
 
-    complete_time = DateTimeFormatter.local_timestamp()
-    print(f"[*] Proccessing complete: {complete_time}")
+    print(f"[*] Proccessing complete: {now}")
     if verbose:
         print("[*]")
         
 if __name__ == "__main__":
-    main("ALS")
+    main("FULL")
 
 

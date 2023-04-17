@@ -1,29 +1,13 @@
 """
 Copyright (c) 2023 Jesse Meekins
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+See project 'license' file for more informations
 """
-
+import re
+import itertools
 from datetime import datetime
 from openpyxl import Workbook
 
-class DataFilters:
+class ReportTypeClass:
     def __init__(self) -> None:
         pass
 
@@ -39,7 +23,7 @@ class DataFilters:
     
     @staticmethod
     def _get_tupled_times(_data: dict) -> tuple:
-        return _data["shift_start_and_end"]
+        return (_data["shift_start"], _data["shift_end"])
 
     @staticmethod
     def _currently_working(tupled_times: tuple[datetime,datetime]) -> bool:
@@ -48,15 +32,23 @@ class DataFilters:
 
     @staticmethod
     def _paramedic(data:dict) -> bool:
-        return data["rank_of_person"] == "FFP" or "EMTP" in data["profile_specialties"]       
-        
+        return data["rank"] == "FFP" or "EMTP" in data["specialties"]       
+    
+    @staticmethod
+    def _battalion_chief(data: dict) -> bool:
+        return data["rank"] == "BC"
+    
+    @staticmethod
+    def _division_chief(data:dict) -> bool:
+        return data["rank"] == "DC"
+    
     @staticmethod
     def _company_identifier(data:dict) -> str:
-        return data["current_company"]
+        return data["company"]
     
     @staticmethod
     def _company_abrev_first_two_letters(data:str):
-        return data["current_company"][0:2]
+        return data["company"][0:2]
     
     @staticmethod
     def _paycode(data:dict) -> str:
@@ -65,49 +57,169 @@ class DataFilters:
     @staticmethod
     def _shift(data:dict) -> str:
         return data["shift"]
+    
+    def _on_duty(self, data:dict) -> bool:
+        if data["is_working"] == 'true':
+            t_times = self._get_tupled_times(data)
+            formatted_times = self.ISO_8601_reformatter(t_times)
+            on_duty = self._currently_working(formatted_times)
+            return on_duty
+        else:
+            return False
+    
+    def _field_personnel(aelf, data: dict) -> bool:
+        region = data["region"]
+        is_field = re.search(r'D\d\dB\d\d', region)
+        return is_field
 
 
-class ALS(DataFilters):
+class AlsCompanyReport(ReportTypeClass):
     def __init__(self, data: dict) -> None:
         self.data = data
     
-    def list_als_companies(self) -> dict:
+    def _list_als_companies(self) -> dict:
         """Mini Procotcal method for finding ALS companies in service"""
-        
-        als_dict = dict()
+        als_list = dict()
         for i, record in enumerate(self.data.values()):
-            # gets tuple with string reprs of datetime from file
-            t_times = self._get_tupled_times(record)
-            # reformats ISO 8601 into datetime objects for further comparisems
-            formatted_times = self.ISO_8601_reformatter(t_times)
-            #performs check to see if recrods is within a certain timeframe
-            on_duty = self._currently_working(formatted_times)
-            # checks to see if record is == to a paramedic
+            on_duty = self._on_duty(record)
             paramedic = self._paramedic(record)
-            # Get the company CAD abrv
             comp = self._company_identifier(record)
 
-            # Checking the dictionary for company abrv 
             if on_duty and paramedic:
-                # retrieves a string repr of the fire companies abrv
-                als_dict[comp] = {"ALS": True}
+                if 'PU0' in comp or 'TR0' in comp or 'RC0' in comp or 'QT0' in comp:
+                    als_list[comp] = {"ALS": True}
             else:
                 ...
-        return als_dict
+        return als_list
     
-    def als_count(self) -> int:
-        comp = self.list_als_companies()
-        fire_comp = [c for c in comp.keys() if "PU" in c or "TR" in c or "RC" in c]
-        return len(fire_comp)
+    def als_count(self, als_comp: dict) -> int:
+        return len(als_comp)
+    
+    def __call__(self) -> dict:
+        company_dict = self._list_als_companies()
+        count = self.als_count(company_dict)
+        print(f"[{datetime.now()}] ALS Count: {count}")
+        return company_dict
 
-    
-class PayCodeFilters(DataFilters):
+
+class AssignmentReport(ReportTypeClass):
     def __init__(self, data) -> None:
         self.data: dict = data
 
-    def all_records(self) -> dict:
-        return self.data
+    def _all_records(self) -> list:
+        records = list()
+        for d in self.data.values():
+            if d["pay_info"] == "FD Pay Info 1":
+                shift = [s[0] for s in d["specialities"] if "SH" in s]
+                if shift:
+                    shift = shift[0]
+                else:
+                    shift = "No shift listed"
+                comp = [c for c in d["specialities"] if "PU0" in c or "TR0" in c or "RC0" in c or "QT0" in c or "BC0" in c]
+                if comp:
+                    comp = comp[0]
+                else:
+                    comp = "No company listed"
             
+                records.append((shift, comp, d["eid"], d["rank"], d["last_name"], d["first_name"], d["groups"]))
+        return records
+    
+    def __call__(self) -> dict:
+        data = self._all_records()
+        return data
+    
+
+class FullRosterReport(ReportTypeClass):
+    def __init__(self, data: dict) -> None:
+        self.data = data
+
+    def _payroll_code_count(self) -> dict:
+        grouped = {}
+        for value in self.data.values():
+            on_duty = self._on_duty(value)
+            is_field = self._field_personnel(value)
+      
+            paycode = value["paycode"]
+            if on_duty and is_field:
+                if paycode not in grouped.keys():
+                    grouped[paycode] = []
+                grouped[paycode].append({"rank":value["rank"], "name": value["name"]}) 
+           
+            
+        #for paycode, lst in grouped.items():
+            #print(f"[*] {paycode}: {len(lst)}")
+
+        return grouped
+    
+    def _paycode_count(self):
+        count_list = list()
+        grouped = self._payroll_code_count()
+        for paycode, lst in grouped.items():
+            count_list.append(f"[*] {paycode}: {len(lst)}")
+        return count_list
+        
+    
+    def _on_duty_chiefs(self):
+        dc = []
+        bc = []
+
+        for value in self.data.values():
+            on_duty = self._on_duty(value)
+            if on_duty:
+                rank = value["rank"]
+                name = value["name"]
+                comp = value["unit"]
+                match rank:
+                    case "DC-FIRE":
+                        dc.append((comp+': ' +name))
+                    case "BC-FIRE":
+                        bc.append((comp+': ' +name))
+                    case other:
+                        ...
+
+        print("[*]", list(dc))
+        print("[*]", list(bc))
+
+
+    def multiple_days_off(self):
+        sl = []
+        for value in self.data.values():
+            is_field = self._field_personnel(value)
+
+
+            if value["paycode"] == "SL" :
+
+                if value["detail_code"] != 'Not listed' and is_field:
+                    sl.append((value["name"], value["paycode"], value["detail_code"]))
+        return sl
+    
+        
+    def __call__(self):
+        chiefs = self._on_duty_chiefs()
+        data = self._paycode_count()
+        multi_day = self.multiple_days_off()
+
+        return itertools.chain(data,multi_day)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     def to_excel(self):
         wb = Workbook()
         ws = wb.active
@@ -120,14 +232,14 @@ class PayCodeFilters(DataFilters):
                     shift = shift[0]
                 else:
                     shift = "No shift listed"
-                comp = [c for c in d["specialities"] if "PU" in c or "TR" in c or "RC" in c or "QT" in c or "BC" in c]
+                comp = [c for c in d["specialities"] if "PU0" in c or "TR0" in c or "RC0" in c or "QT0" in c or "BC0" in c]
                 if comp:
                     comp = comp[0]
                 else:
                     comp = "No company listed"
                 
                 entry= [shift, str(comp), d["eid"], d["rank"], d["last_name"], d["first_name"], d["groups"]]
-                ws.append(entry)
+            
 
                 print(shift, comp, d["eid"], d["rank"], d["last_name"], d["first_name"], d["groups"], sep=", ")
 

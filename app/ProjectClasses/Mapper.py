@@ -38,10 +38,13 @@ class XmlAlsFieldsMap(DataFieldsMapper):
     def field_mapper(self, record) -> list[tuple]:
         fields = [
             ("specialties" ,'RscFormulaIDCh'),
+            ("region", 'RegionAbrvCh'),
+            ("station", 'StationAbrvCh'),
+            ("unit", 'PUnitAbrvCh'),
             ("rank", 'PosJobAbrvCh'),
-            ("company", 'PUnitAbrvCh'),
             ("shift_start", 'StaffingStartDt'),
             ("shift_end", 'ShiftEndDt'),
+            ("is_working", 'WstatIsWorkingGm'),
         ]
         return super().__call__(record=record, fields=fields)
             

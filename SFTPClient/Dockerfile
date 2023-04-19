@@ -1,14 +1,21 @@
 FROM ubuntu:latest
 
-RUN apt update
+WORKDIR /app
 
-WORKDIR /usr/app/src
+# Update package list and install required packages
+RUN apt-get update && \
+    apt-get install -y python3 python3-pip cron && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN apt-get install nano -y
-RUN apt install python3 -y
-RUN apt-get install python3 pip -y
-RUN pip install paramiko
-RUN apt-get install cron -y
+# Install Python dependencies
+COPY requirements.txt /app/
+RUN pip3 install --no-cache-dir -r requirements.txt
 
-COPY . ./
+# Create directory for imports
+RUN mkdir /app/imports
 
+# Copy the application code into the container
+COPY app.py /app/
+
+# Set the command to be run when the container starts
+CMD ["cron", "-f"]

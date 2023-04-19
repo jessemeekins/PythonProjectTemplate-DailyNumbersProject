@@ -4,6 +4,7 @@ See project 'license' file for more informations
 """
 from abc import ABC, abstractmethod
 import xml.etree.ElementTree as ET
+import pathlib
 
 class Importer(ABC):
     def __init__(self) -> None:
@@ -18,7 +19,7 @@ class XmlImporter(Importer):
     def __init__(self,filepath: str, filename: str) -> None:
         self.filepath = filepath
         self.filename = filename
-      
+        
     def importer(self): 
         """Located the file to parse and return xml.etree.ElementTree obj"""
         tree = ET.parse(f"{self.filepath}{self.filename}")

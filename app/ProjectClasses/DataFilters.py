@@ -5,7 +5,7 @@ See project 'license' file for more informations
 import re
 import itertools
 from datetime import datetime
-from openpyxl import Workbook
+
 
 class ReportTypeClass:
     def __init__(self) -> None:
@@ -28,7 +28,10 @@ class ReportTypeClass:
     @staticmethod
     def _currently_working(tupled_times: tuple[datetime,datetime]) -> bool:
         now = datetime.now()
-        return now > tupled_times[0] and now < tupled_times[1]
+        try:
+            return now > tupled_times[0] and now < tupled_times[1]
+        except:
+            return False
 
     @staticmethod
     def _paramedic(data:dict) -> bool:
@@ -43,12 +46,12 @@ class ReportTypeClass:
         return data["rank"] == "DC"
     
     @staticmethod
-    def _company_identifier(data:dict) -> str:
-        return data["company"]
+    def get_company(data:dict) -> str:
+        return data["unit"]
     
     @staticmethod
     def _company_abrev_first_two_letters(data:str):
-        return data["company"][0:2]
+        return data["unit"][0:2]
     
     @staticmethod
     def _paycode(data:dict) -> str:
@@ -58,6 +61,18 @@ class ReportTypeClass:
     def _shift(data:dict) -> str:
         return data["shift"]
     
+    @staticmethod
+    def is_working(data:dict) -> str:
+        return data["is_working"]
+    
+    @staticmethod
+    def get_region(data:dict) -> str:
+        return data["region"]
+    
+    @staticmethod
+    def get_station(data:dict) -> str:
+        return data["station"]
+    
     def _on_duty(self, data:dict) -> bool:
         if data["is_working"] == 'true':
             t_times = self._get_tupled_times(data)
@@ -66,11 +81,31 @@ class ReportTypeClass:
             return on_duty
         else:
             return False
+        
+    def _off_duty(self, data:dict) -> bool:
+        if data['is_working'] == 'false':
+            return True
     
-    def _field_personnel(aelf, data: dict) -> bool:
+    def _field_personnel(self, data: dict) -> bool:
         region = data["region"]
         is_field = re.search(r'D\d\dB\d\d', region)
         return is_field
+    
+    def _bc_or_dc_working(self, data:dict) -> bool:
+        unit = data["unit"]
+        pattern = r'^[BD][C,D]\d{3}$'
+        is_chief = re.search(pattern, unit)
+        return is_chief
+    
+    
+    def find_numbers_greater_than_two(self, data: dict) -> str:
+        string = data["detail_code"]
+        # Define a regular expression pattern to match numbers greater than 2
+        pattern = r'\b([3-9]|[1-9][0-9]+)\b'
+        # Use the findall() method to extract all matching numbers from the string
+        numbers = re.findall(pattern, string)
+        # Return the list of matching numbers
+        return numbers
 
 
 class AlsCompanyReport(ReportTypeClass):
@@ -79,27 +114,37 @@ class AlsCompanyReport(ReportTypeClass):
     
     def _list_als_companies(self) -> dict:
         """Mini Procotcal method for finding ALS companies in service"""
-        als_list = dict()
+        als_set = dict()
         for i, record in enumerate(self.data.values()):
             on_duty = self._on_duty(record)
             paramedic = self._paramedic(record)
-            comp = self._company_identifier(record)
+
+            comp = self.get_company(record)
 
             if on_duty and paramedic:
                 if 'PU0' in comp or 'TR0' in comp or 'RC0' in comp or 'QT0' in comp:
-                    als_list[comp] = {"ALS": True}
+                    region = self.get_region(record)
+                    if region not in als_set:
+                        als_set[region] = set()
+                    als_set[region].add((comp)) 
             else:
                 ...
-        return als_list
+        return als_set
     
     def als_count(self, als_comp: dict) -> int:
-        return len(als_comp)
+        comp_lst = list()
+        for k, v in als_comp.items():
+            for i in v:
+                comp_lst.append(i)
+        return len(comp_lst)
     
     def __call__(self) -> dict:
         company_dict = self._list_als_companies()
         count = self.als_count(company_dict)
         print(f"[{datetime.now()}] ALS Count: {count}")
         return company_dict
+    
+
 
 
 class AssignmentReport(ReportTypeClass):
@@ -136,112 +181,89 @@ class FullRosterReport(ReportTypeClass):
     def _payroll_code_count(self) -> dict:
         grouped = {}
         for value in self.data.values():
-            on_duty = self._on_duty(value)
             is_field = self._field_personnel(value)
       
             paycode = value["paycode"]
-            if on_duty and is_field:
+            if is_field:
                 if paycode not in grouped.keys():
                     grouped[paycode] = []
                 grouped[paycode].append({"rank":value["rank"], "name": value["name"]}) 
-           
-            
-        #for paycode, lst in grouped.items():
-            #print(f"[*] {paycode}: {len(lst)}")
 
         return grouped
     
     def _paycode_count(self):
-        count_list = list()
+        count_dict = dict()
         grouped = self._payroll_code_count()
         for paycode, lst in grouped.items():
-            count_list.append(f"[*] {paycode}: {len(lst)}")
-        return count_list
+            count_dict[paycode] = len(lst)
+        return count_dict
         
     
-    def _on_duty_chiefs(self):
-        dc = []
-        bc = []
-
+    def _on_duty_chiefs(self) -> set:
+        chiefs= dict()
         for value in self.data.values():
             on_duty = self._on_duty(value)
-            if on_duty:
+            is_chief = self._bc_or_dc_working(value)
+            if on_duty and is_chief:
                 rank = value["rank"]
                 name = value["name"]
                 comp = value["unit"]
                 match rank:
                     case "DC-FIRE":
-                        dc.append((comp+': ' +name))
+                        chiefs[comp] = name
                     case "BC-FIRE":
-                        bc.append((comp+': ' +name))
+                        chiefs[comp] = name 
                     case other:
                         ...
-
-        print("[*]", list(dc))
-        print("[*]", list(bc))
-
-
-    def multiple_days_off(self):
-        sl = []
+        return chiefs
+    
+    def _off_by_rank(self) -> dict:
+        off_by_rank = dict()
         for value in self.data.values():
             is_field = self._field_personnel(value)
-
-
-            if value["paycode"] == "SL" :
-
-                if value["detail_code"] != 'Not listed' and is_field:
-                    sl.append((value["name"], value["paycode"], value["detail_code"]))
-        return sl
-    
-        
-    def __call__(self):
-        chiefs = self._on_duty_chiefs()
-        data = self._paycode_count()
-        multi_day = self.multiple_days_off()
-
-        return itertools.chain(data,multi_day)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def to_excel(self):
-        wb = Workbook()
-        ws = wb.active
-
-        ws.append(["SHIFT", "COMPANY", "EID", "RANK", "LAST_NAME", "FIRST_NAME", "GROUPS"])
-        for d in self.data.values():
-            if d["pay_info"] == "FD Pay Info 1":
-                shift = [s[0] for s in d["specialities"] if "SH" in s]
-                if shift:
-                    shift = shift[0]
-                else:
-                    shift = "No shift listed"
-                comp = [c for c in d["specialities"] if "PU0" in c or "TR0" in c or "RC0" in c or "QT0" in c or "BC0" in c]
-                if comp:
-                    comp = comp[0]
-                else:
-                    comp = "No company listed"
-                
-                entry= [shift, str(comp), d["eid"], d["rank"], d["last_name"], d["first_name"], d["groups"]]
+            on_duty = self._off_duty(value)
             
 
-                print(shift, comp, d["eid"], d["rank"], d["last_name"], d["first_name"], d["groups"], sep=", ")
+            if on_duty and is_field:
+                rank = value["rank"]
 
-        #wb.save("/Users/jessemeekins/Desktop/Person_export.xlsx")
-        wb.close()
+                if rank[0] == '.':
+                    rank = rank[1:]
+                else:
+                    rank
+                if rank not in off_by_rank.keys():
+                    off_by_rank[rank] = []
+                off_by_rank[rank].append(value["name"])
+        return off_by_rank
+    
+    def _off_by_rank_count(self) -> dict:
+        off_count = dict()
+        ranks = self._off_by_rank()
+        for rank, lst in ranks.items():
+            off_count[rank] = len(lst)
+        return off_count
+
+
+    def multiple_days_off(self) -> dict:
+        sl = dict()
+        for value in self.data.values():
+            is_field = self._field_personnel(value)
+            greater_than_two = self.find_numbers_greater_than_two(value)
+
+            if value["paycode"] == "SL":
+
+                if value["detail_code"] != 'Not listed' and is_field and greater_than_two:
+                    sl[value["name"]] = {"paycode": value["paycode"],"days_off": greater_than_two[0]}
+        return sl
+    
+
+    def __call__(self) -> dict[dict]:
+        class_als = AlsCompanyReport(self.data)
+        als_comp = class_als._list_als_companies()
+        als_count = class_als.als_count(als_comp)
+        chiefs = self._on_duty_chiefs()
+        paycodes = self._paycode_count()
+        multi_day = self.multiple_days_off()
+        off_by_rank = self._off_by_rank_count()
+
+        return {'chiefs': chiefs, "paycodes": paycodes, "multi_day": multi_day, "als": {"companies": als_comp, "count": als_count}, "off_by_rank": off_by_rank}

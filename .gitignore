@@ -5,4 +5,3 @@ SFTP_logs.log
 exports/*
 app/data/exports/
 /.eggs/
-script.sh

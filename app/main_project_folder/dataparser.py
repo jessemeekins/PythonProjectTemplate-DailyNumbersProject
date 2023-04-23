@@ -16,6 +16,7 @@ class XmlDataParser:
     """Loops though each record of records in a XML file, 'key_tag' set to record,
     the internal file tag for each individual record in telestaff in a given report"""
     def __init__(self, data, mapper: DataFieldsMapper, key_tag='Record') -> None:
+        super().__init__()
         self.data = data
         self.mapper: DataFieldsMapper = mapper
         self.key = key_tag

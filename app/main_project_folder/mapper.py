@@ -83,3 +83,9 @@ class AssignmentExportMapper(DataFieldsMapper):
         ]
         
         return super().__call__(record=record, fields=fields)
+    
+class NewMap(DataFieldsMapper):
+    def field_mapper(self) -> list[tuple]:
+        fields = {
+            
+        }

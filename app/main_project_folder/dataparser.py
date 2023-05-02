@@ -3,7 +3,7 @@ Copyright (c) 2023 Jesse Meekins
 See project 'license' file for more informations
 """
 from abc import ABC, abstractmethod
-from mapper import DataFieldsMapper
+from main_project_folder.mapper import DataFieldsMapper
 
 class DataParser(ABC):
     def __init__(self) -> None:

@@ -1,0 +1,182 @@
+<!-- child.html -->
+
+{% extends 'index.html' %}
+
+{% block title %}
+Daily Numbers
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h4>Shift: {{ SHIFT[0] }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h4>Division 1: {{ DIV1 }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h4>Division 2: {{ DIV2 }}</h4>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row pt-4">
+    <div class="col-sm-4">
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Battalion</th>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for k, v in CHIEFS.items() %}
+                            {% if "BC" in k %}
+                            <tr>
+                                <td>{{ k }}</td>
+                                <td>
+                                    <span class="badge bg-success">{{ v }}</span>
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-8">
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Battalion</th>
+                            <th>Fire Companies: ALS Companies {{ NUMBER_OF_ALS }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for battalion, personnel_units in BATTALION_DICT.items() %}
+                        <tr>
+                            <td>{{ battalion[3:] }}</td>
+                            <td>
+                                {% for personnel_unit in personnel_units %}
+                                {% if personnel_unit in ALS %}
+                                <span class="badge bg-primary">{{ personnel_unit }}</span>
+                                {% else %}
+                                <span class="badge bg-danger">{{ personnel_unit }}</span>
+                                {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row pt-4">
+    <div class="col-sm-4">
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Paycode</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for paycode, count in PAYCODES.items() %}
+                        
+                        <tr>
+                            <td>{{ paycode }}</td>
+                            <td>
+                                <span class="badge bg-primary">{{ count }}</span>
+                            </td>
+                        </tr>
+             
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Battalion</th>
+                            <th>Comp.</th>
+                            <th>Req.</th>
+                            <th>Act.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for k, v in COMPLIMENT.items() %}
+                        <tr>
+                            <td>{{ k[3:] }}</td>
+                            <td>
+                                <span class="badge bg-primary">{{ v[0] }}</span>
+                            </td>
+                            <td>{{ v[1] }} </td>
+                            <td></td>
+                            
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Ranks Off</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for k, v in OFF_BY_RANK.items() %}
+                        <tr>
+                            <td>{{ k }}</td>
+                            <td>
+                                {% if v > 20 %}
+                                <span class="badge bg-danger">{{ v }}</span>
+                                {% elif v > 10 %}
+                                <span class="badge bg-warning">{{ v }}</span>
+                                {% else %}
+                                <span class="badge bg-info">{{ v }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+    
+    
+
+{% endblock %}

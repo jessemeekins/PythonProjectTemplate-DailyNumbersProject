@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Drag and Drop Table Items</title>
+	<!-- Add Bootstrap 5 stylesheet -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css">
+	<style>
+		.table {
+			display: table;
+			border-collapse: collapse;
+			width: 100%;
+			margin-bottom: 20px;
+		}
+		.table-row {
+			display: table-row;
+		}
+		.table-cell {
+			display: table-cell;
+			padding: 10px;
+			border: 1px solid #ccc;
+		}
+		.draggable {
+			cursor: grab;
+			padding: 10px;
+			background-color: #f2f2f2;
+			border: 1px solid #ccc;
+			border-radius: 10px;
+			padding: 5px;
+		}
+		.highlight {
+			background-color: #d9edf7;
+			border: 1px solid #bce8f1;
+			padding: 10px;
+			margin-top: 5px;
+			margin-bottom: 5px;
+		}
+		td, tr {
+			padding: 10px;
+			height: auto;
+			width: auto;
+		}
+		.drop-zone {
+			width: 600px;
+			height: 50px;
+			padding: 10px;
+			border-radius: 10px;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-2">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>
+								Name
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
+						
+							<td>
+								<div class="drop-zone">
+									<span id="item1" class="draggable" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)">Meekins, Jesse</span>
+								</div>
+							</td>
+						</tr>
+						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
+					
+							<td>
+								<div class="drop-zone">
+									<span id="item2" class="draggable" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)">Lewis, Zach</span>
+								</div>
+							</td>
+						</tr>
+						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
+					
+							<td>
+								<div class="drop-zone">
+									<span id="item3" class="draggable" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)">Farr, Lauren</span>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="col-md-6">
+				<table class="table">
+					<title>Engine 69</title>
+					<thead>
+						
+						<tr>
+							<th>Position</th>
+							<th>Name</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
+							<td>Lieutenant</td>
+							<td><div id="drop-zone-1" class="drop-zone"></div></td>
+						</tr>
+						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
+							<td>Driver</td>
+							<td><div id="drop-zone-2" class="drop-zone"></div></td>
+						</tr>
+						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
+							<td>Private</td>
+							<td><div id="drop-zone-3" class="drop-zone"></div></td>
+						</tr>
+						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
+							<td>Private</td>
+							<td><div id="drop-zone-4" class="drop-zone"></div></td>
+						</tr>
+					</tbody>
+				</table>
+		
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Position</th>
+							<th>Name</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
+							<td>Lieutenant</td>
+							<td><div id="drop-zone-1" class="drop-zone"></div></td>
+						</tr>
+						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
+							<td>Driver</td>
+							<td><div id="drop-zone-2" class="drop-zone"></div></td>
+						</tr>
+						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
+							<td>FFP</td>
+							<td><div id="drop-zone-3" class="drop-zone"></div></td>
+						</tr>
+						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
+							<td>Private</td>
+							<td><div id="drop-zone-3" class="drop-zone"></div></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+		
+	<script>
+
+	const items = document.querySelectorAll('.draggable');
+	const cells = document.querySelectorAll('.drop-zone');
+	function dragStart(event) {
+		event.dataTransfer.setData("Text", event.target.id);
+		document.getElementById("demo").innerHTML = "Dragging started";
+	}
+
+	function dragEnd(event) {
+		document.getElementById("demo").innerHTML = "Dragging ended.";
+	}
+
+	function allowDrop(event) {
+		event.preventDefault();
+	}
+
+	function drop(event) {
+		event.preventDefault();
+		const data = event.dataTransfer.getData("Text");
+		const dropZone = event.target;
+		if (dropZone.classList.contains('drop-zone')) {
+			dropZone.appendChild(document.getElementById(data));
+		}
+	}
+
+	</script>
+
+</body>
+
+</html>

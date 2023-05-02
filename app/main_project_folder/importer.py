@@ -4,7 +4,7 @@ See project 'license' file for more informations
 """
 from abc import ABC, abstractmethod
 import xml.etree.ElementTree as ET
-from file_path_manager import DefinedFilePaths
+from main_project_folder.file_path_manager import DefinedFilePaths
 
 
 class Importer(ABC):

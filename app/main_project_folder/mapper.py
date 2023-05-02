@@ -77,9 +77,10 @@ class AssignmentExportMapper(DataFieldsMapper):
             ("full_rank", 'Rsc_Desc_Ch'),
             ("last_name" ,'RscMaster_LName_Ch'),
             ("first_name", 'RscMaster_FName_Ch'),
-            ("specialities", 'Spec_Skill_In'),
+            ("specialties", 'Spec_Skill_In'),
             ("groups", 'Group_Skill_In'),
-            ("pay_info", "PayInfo_Name_Ch")
+            ("pay_info", "PayInfo_Name_Ch"),
+            ("location", "Loc_Name_Ch")
         ]
         
         return super().__call__(record=record, fields=fields)

@@ -5,7 +5,7 @@ See project 'license' file for more informations
 #%%
 from typing import Type
 from dataclasses import dataclass
-from datetime_formatter import DateTimeFormatter
+from main_project_folder.datetime_formatter import DateTimeFormatter
 from pathlib import Path
 
 ADJUSTED_FILE_DATE = DateTimeFormatter.shift_start_end_adjust()
@@ -50,6 +50,8 @@ FILE_PATH_FACTORY = {
 
 
 def get_file_path(arg: str) -> DefinedFilePaths:
-    return FILE_PATH_FACTORY[arg]
-
+    try:
+        return FILE_PATH_FACTORY[arg]
+    except KeyError:
+        return FILE_PATH_FACTORY["FULL"]
 

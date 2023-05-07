@@ -5,5 +5,34 @@ Daily Numbers
 {% endblock %}
 
 {% block content %}
-    <p>{{ DATA }}</p>
+<div class="card">
+    <div class="card-body">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Unit</th>
+                    <th>Paycode</th>
+                    <th>Start</th>
+                    <th>End</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for k, v in DATA.items() %}
+               
+                    <tr>
+                        <td>{{ k }}</td>
+                        <td>{{ v["company"] }}</td>
+                        <td>{{ v["code"] }}</td>
+                        <td>{{ v["start"] }}</td>
+                        <td>{{ v["end"] }}</td>
+                        
+                    </tr>
+                
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
 {% endblock %}

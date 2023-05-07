@@ -16,7 +16,13 @@ class DateTimeFormatter:
         return datetime.now(tz=tz.tzlocal())
 
     @staticmethod
-    def shift_start_end_adjust() -> str:
-        today = datetime.today() - timedelta(hours=7)
+    def shift_start_end_adjust(i=0) -> str:
+        today = datetime.today() - timedelta(days=i,hours=7)
         formatted_time = datetime.strftime(today, "%Y-%m-%d")
         return formatted_time 
+    
+    
+    
+
+
+        

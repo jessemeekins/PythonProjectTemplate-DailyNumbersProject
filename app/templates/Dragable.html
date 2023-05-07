@@ -8,8 +8,10 @@
 		.table {
 			display: table;
 			border-collapse: collapse;
-			width: 100%;
+			width: 50%;
 			margin-bottom: 20px;
+			text-align: left;
+			border-collapse: 100%;
 		}
 		.table-row {
 			display: table-row;
@@ -34,144 +36,292 @@
 			margin-top: 5px;
 			margin-bottom: 5px;
 		}
+		th, td {
+			text-align: left;
+			padding: 8px;
+			border-bottom: 1px solid #ddd;
+		}
 		td, tr {
 			padding: 10px;
-			height: auto;
-			width: auto;
+			height: 20px;
+			width: 20px;
 		}
 		.drop-zone {
-			width: 600px;
+			width: auto;
 			height: 50px;
 			padding: 10px;
-			border-radius: 10px;
 		}
+		tr:nth-child(even) {
+			background-color: #f2f2f2;
+		}
+		.collapsible {
+			cursor: pointer;
+			user-select: none;
+			background-color: #ddd;
+			padding: 8px;
+			border: none;
+			text-align: left;
+			outline: none;
+			width: auto;
+		}
+		.collapsible:hover {
+			background-color: #ccc;
+		}
+		.active, .collapsible:hover {
+			background-color: #555;
+			color: white;
+		}
+		.content {
+			padding: 0 8px;
+			display: none;
+			overflow: hidden;
+			border-bottom: 1px solid #ddd;
+		}
+		.card {
+		background-color: #fff;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+		border-radius: 10px;
+		padding: 20px;
+		margin: 10px;
+	}
+
+	.table {
+		width: 100%;
+	}
+
+	.caption-top {
+		caption-side: top;
+		font-size: 18px;
+		font-weight: bold;
+		text-align: center;
+		padding-bottom: 10px;
+	}
+
+	.collapsible1 {
+		background-color: #007bff;
+		color: #fff;
+		border: none;
+		padding: 10px 15px;
+		border-radius: 5px;
+		cursor: pointer;
+		transition: background-color 0.3s;
+	}
+
+	.collapsible1:hover {
+		background-color: #0069d9;
+	}
+
+	.active, .collapsible:hover {
+		background-color: #555;
+		color: white;
+	}
+
+	.content1 {
+		display: none;
+		padding-top: 10px;
+	}
+
+	.table-row td {
+		padding: 10px;
+	}
+
+	.drop-zone {
+		background-color: #f2f2f2;
+		border: 1px solid #ccc;
+		height: 50px;
+		margin: 5px 0;
+		padding: 10px;
+	}
 	</style>
 </head>
 <body>
 	<div class="container">
 		<div class="row">
-			<div class="col-sm-2">
-				<table class="table">
-					<thead>
-						<tr>
-							<th>
-								Name
-							</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
-						
-							<td>
-								<div class="drop-zone">
-									<span id="item1" class="draggable" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)">Meekins, Jesse</span>
-								</div>
-							</td>
-						</tr>
-						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
-					
-							<td>
-								<div class="drop-zone">
-									<span id="item2" class="draggable" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)">Lewis, Zach</span>
-								</div>
-							</td>
-						</tr>
-						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
-					
-							<td>
-								<div class="drop-zone">
-									<span id="item3" class="draggable" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)">Farr, Lauren</span>
-								</div>
-							</td>
-						</tr>
-					</tbody>
-				</table>
+			<div class="col-4">
+				<div class="card shadow">
+					<div class="card-body">
+						<h5 class="card-title">Firefighters</h5>
+						<div class="table-responsive">
+							<table class="table caption-top pd-3">
+								<caption>Engine 69</caption>
+								<thead>
+									<tr>
+										<th>Name</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ondragover="allowDrop(event)" ondrop="drop(event)">
+										<td>
+											<div class="drop-zone">
+												<span id="item1" class="draggable" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)">Meekins, Jesse</span>
+											</div>
+										</td>
+									</tr>
+									<tr ondragover="allowDrop(event)" ondrop="drop(event)">
+										<td>
+											<div class="drop-zone">
+												<span id="item2" class="draggable" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)">Lewis, Zach</span>
+											</div>
+										</td>
+									</tr>
+									<tr ondragover="allowDrop(event)" ondrop="drop(event)">
+										<td>
+											<div class="drop-zone">
+												<span id="item3" class="draggable" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)">Farr, Lauren</span>
+											</div>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
 			</div>
-			<div class="col-md-6">
-				<table class="table">
-					<title>Engine 69</title>
-					<thead>
-						
-						<tr>
-							<th>Position</th>
-							<th>Name</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
-							<td>Lieutenant</td>
-							<td><div id="drop-zone-1" class="drop-zone"></div></td>
-						</tr>
-						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
-							<td>Driver</td>
-							<td><div id="drop-zone-2" class="drop-zone"></div></td>
-						</tr>
-						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
-							<td>Private</td>
-							<td><div id="drop-zone-3" class="drop-zone"></div></td>
-						</tr>
-						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
-							<td>Private</td>
-							<td><div id="drop-zone-4" class="drop-zone"></div></td>
-						</tr>
-					</tbody>
-				</table>
+			
 		
-				<table class="table">
-					<thead>
-						<tr>
-							<th>Position</th>
-							<th>Name</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
-							<td>Lieutenant</td>
-							<td><div id="drop-zone-1" class="drop-zone"></div></td>
-						</tr>
-						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
-							<td>Driver</td>
-							<td><div id="drop-zone-2" class="drop-zone"></div></td>
-						</tr>
-						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
-							<td>FFP</td>
-							<td><div id="drop-zone-3" class="drop-zone"></div></td>
-						</tr>
-						<tr ondragover="allowDrop(event)" ondrop="drop(event)">
-							<td>Private</td>
-							<td><div id="drop-zone-3" class="drop-zone"></div></td>
-						</tr>
-					</tbody>
-				</table>
+			<div class="col-5">
+			
+				<div id="item1" class="draggable" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)">
+					<div class="card shadow">
+							<div class="table-responsive w-100">
+								<table class="table caption-top pd-3">	
+									<caption>Engine 69</caption>
+									<thead>	
+										<tr>
+											<th>Position</th>
+											<th>Name</th>
+											<th>
+												<button class="collapsible collapsible1">-</button>
+											</th>
+										</tr>
+									</thead>
+									<tbody class="content1">
+										<tr class="table-row" ondragover="allowDrop(event)" ondrop="drop(event)">
+											<td>Lieutenant</td>
+											<td><div id="drop-zone-1" class="drop-zone"></div></td>
+											<td></td>
+										</tr>
+										<tr ondragover="allowDrop(event)" ondrop="drop(event)">
+											<td>Driver</td>
+											<td><div id="drop-zone-2" class="drop-zone"></div></td>
+											<td></td>
+										</tr>
+										<tr ondragover="allowDrop(event)" ondrop="drop(event)">
+											<td>Private</td>
+											<td><div id="drop-zone-3" class="drop-zone"></div></td>
+											<td></td>
+										</tr>
+										<tr ondragover="allowDrop(event)" ondrop="drop(event)">
+											<td>Private</td>
+											<td><div id="drop-zone-4" class="drop-zone"></div></td>
+											<td></td>
+										</tr>
+										
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
-		</div>
+		<div class="row">
+			<div id="item1" class="draggable" draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)">
+				<div class="card shadow">
+					<div class="container">
+						<div class="table-responsive">
+							<table class="table caption-top">
+								<caption>Truck 420</caption>
+								<thead>
+									<tr>
+										<th>Position</th>
+										<th>Name</th>
+										<th>
+											<button class="collapsible collapsible2">-</button>
+										</th>
+									</tr>
+								</thead>
+								<tbody class="content2">
+									<tr ondragover="allowDrop(event)" ondrop="drop(event)">
+										<td>Lieutenant</td>
+										<td>
+											<div id="drop-zone-1" class="drop-zone">
+											</div>
+										</td>
+										<td></td>
+									</tr>
+									<tr ondragover="allowDrop(event)" ondrop="drop(event)">
+										<td>Driver</td>
+										<td>
+											<div id="drop-zone-2" class="drop-zone">
+											</div>
+										</td>
+										<td></td>
+									</tr>
+									<tr ondragover="allowDrop(event)" ondrop="drop(event)">
+										<td>FFP</td>
+										<td>
+											<div id="drop-zone-3" class="drop-zone">
+											</div>
+										</td>
+										<td></td>
+									</tr>
+									<tr ondragover="allowDrop(event)" ondrop="drop(event)">
+										<td>Private</td>
+										<td>
+											<div id="drop-zone-4" class="drop-zone">
+											</div>
+										</td>
+										<td></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>		
+	
 	</div>
 		
 	<script>
 
-	const items = document.querySelectorAll('.draggable');
-	const cells = document.querySelectorAll('.drop-zone');
-	function dragStart(event) {
-		event.dataTransfer.setData("Text", event.target.id);
-		document.getElementById("demo").innerHTML = "Dragging started";
-	}
+		const items = document.querySelectorAll('.draggable');
+		const cells = document.querySelectorAll('.drop-zone');
+		const button1 = document.querySelector('.collapsible1');
+		const button2 = document.querySelector('.collapsible2');
+		const content1 = document.querySelector('.content1');
+		const content2 = document.querySelector('.content2');
 
-	function dragEnd(event) {
-		document.getElementById("demo").innerHTML = "Dragging ended.";
-	}
+		button1.addEventListener('click', function() {
+			content1.style.display = content1.style.display === 'none' ? 'table-row-group' : 'none';
+			this.classList.toggle('active');
+		});
+		button2.addEventListener('click', function() {
+			content2.style.display = content2.style.display === 'none' ? 'table-row-group' : 'none';
+			this.classList.toggle('active');
+		});
 
-	function allowDrop(event) {
-		event.preventDefault();
-	}
-
-	function drop(event) {
-		event.preventDefault();
-		const data = event.dataTransfer.getData("Text");
-		const dropZone = event.target;
-		if (dropZone.classList.contains('drop-zone')) {
-			dropZone.appendChild(document.getElementById(data));
+		function dragStart(event) {
+			event.dataTransfer.setData("Text", event.target.id);
+			document.getElementById("demo").innerHTML = "Dragging started";
 		}
-	}
+
+		function dragEnd(event) {
+			document.getElementById("demo").innerHTML = "Dragging ended.";
+		}
+
+		function allowDrop(event) {
+			event.preventDefault();
+		}
+
+		function drop(event) {
+			event.preventDefault();
+			const data = event.dataTransfer.getData("Text");
+			const dropZone = event.target;
+			if (dropZone.classList.contains('drop-zone')) {
+				dropZone.appendChild(document.getElementById(data));
+			}
+		}
 
 	</script>
 

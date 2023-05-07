@@ -10,7 +10,7 @@ from main_project_folder.report_type import (
     AssignmentReport, FullRosterReport,
     PayCodes, OnDutyChiefs, ComplimentReport,
     RankCounts, CurrentShift, DetailedPersonnel,
-    FormulaIDAudit,
+    FormulaIDAudit, RosterAudit, OvertimeAudit
 )
 from main_project_folder.mapper import (
     DataFieldsMapper, XmlAlsFieldsMap,
@@ -58,10 +58,12 @@ FACTORY = {
     "SHIFT" : FileFactoryExporter(XmlImporter, FullExportFieldsMapper, XmlDataParser, CurrentShift),
     "DETAILED" : FileFactoryExporter(XmlImporter, FullExportFieldsMapper, XmlDataParser, DetailedPersonnel ),
     "AUDIT" : FileFactoryExporter(XmlImporter, AssignmentExportMapper, XmlDataParser, FormulaIDAudit),
+    "DUP" : FileFactoryExporter(XmlImporter, FullExportFieldsMapper, XmlDataParser, RosterAudit),
+    "OT" : FileFactoryExporter(XmlImporter, FullExportFieldsMapper, XmlDataParser, OvertimeAudit),
 }
 
 now = DateTimeFormatter.local_timestamp()
-
+today = DateTimeFormatter.shift_start_end_adjust()
 
 def factory_builder(arg: str, *args, **kwargs) -> dict:
     f = get_file_path(arg)
@@ -98,4 +100,4 @@ def main(arg: str, export_to_excel=False, export_to_json=False, *args, **kwargs)
     return proccessed_data
 
 if __name__ == "__main__":
-    main("ALS", export_to_json=True)
+    main("ALS", export_to_json=False, export_to_excel=False)

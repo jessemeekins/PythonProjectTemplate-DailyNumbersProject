@@ -40,7 +40,7 @@ class XmlAlsFieldsMap(DataFieldsMapper):
             ("specialties" ,'RscFormulaIDCh'),
             ("region", 'RegionAbrvCh'),
             ("station", 'StationAbrvCh'),
-            ("unit", 'PUnitAbrvCh'),
+            ("company", 'PUnitAbrvCh'),
             ("rank", 'PosJobAbrvCh'),
             ("shift_start", 'StaffingStartDt'),
             ("shift_end", 'ShiftEndDt'),
@@ -59,13 +59,12 @@ class FullExportFieldsMapper(DataFieldsMapper):
             ('detail_code', 'StaffingDetailCh'),
             ("region", 'RegionAbrvCh'),
             ("station", 'StationAbrvCh'),
-            ("unit", 'PUnitAbrvCh'),
+            ("company", 'PUnitAbrvCh'),
             ("rank", 'PosJobAbrvCh'),
             ("shift_start", 'StaffingStartDt'),
             ("shift_end", 'ShiftEndDt'),
             ("specialties",'RscFormulaIDCh'),
         ]
-
         return super().__call__(record=record, fields=fields)
         
 
@@ -82,7 +81,6 @@ class AssignmentExportMapper(DataFieldsMapper):
             ("pay_info", "PayInfo_Name_Ch"),
             ("location", "Loc_Name_Ch")
         ]
-        
         return super().__call__(record=record, fields=fields)
     
 class NewMap(DataFieldsMapper):

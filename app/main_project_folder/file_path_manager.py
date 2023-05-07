@@ -2,7 +2,7 @@
 Copyright (c) 2023 Jesse Meekins
 See project 'license' file for more informations
 """
-#%%
+
 from typing import Type
 from dataclasses import dataclass
 from main_project_folder.datetime_formatter import DateTimeFormatter
@@ -50,6 +50,7 @@ FILE_PATH_FACTORY = {
 
 
 def get_file_path(arg: str) -> DefinedFilePaths:
+    
     try:
         return FILE_PATH_FACTORY[arg]
     except KeyError:

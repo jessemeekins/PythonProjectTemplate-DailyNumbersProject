@@ -1,3 +1,4 @@
+#%%
 """
 Copyright (c) 2023 Jesse Meekins
 See project 'license' file for more informations
@@ -9,8 +10,25 @@ from typing import Dict, List, Set, Tuple, Union
 class ReportType:
     def __init__(self, data: dict):
         self.data = data
+    
+    
+    BATTALION_DICT = {
+        "D01B01": {"companies":["PU001", "PU002", "PU005", "PU007", "PU008", "TR002", "TR005", "TR013", "BC001", "DC001"], "required":31, "compliment": {}, "available": {}},
+        "D01B02": {"companies":["PU004", "PU015", "PU019", "PU026", "PU028", "TR011", "BC002"], "required":37, "compliment": {}, "available": {}},
+        "D01B03": {"companies":["PU010", "PU014", "PU020", "PU029", "PU032", "TR009", "RC002", "BC003"], "required":36, "compliment": {}, "available": {}},
+        "D01B06": {"companies":["PU011", "PU013", "PU016", "PU018", "PU022", "TR004", "TR007", "BC006", "AT001", "RH001"], "required":37, "compliment": {}, "available": {}},
+        "D01B08": {"companies":["PU034", "PU040", "PU042", "PU050", "QT057", "TR021", "BC008"], "required":31, "compliment": {}, "available": {}},
+        "D01B09": {"companies":["PU036", "QT037", "PU038", "PU039", "PU043", "PU045", "TR018", "TR019", "TR024", "BC009"], "required":41, "compliment": {}, "available": {}},
+        "D01BAC": {"companies":["PU033", "TR016", "AR001", "AR002", "AR003", "AC001"], "required":20, "compliment": {}, "available": {}},
+        "D02B04": {"companies":["QT054", "PU056", "PU058", "PU059", "TR030", "BC004"], "required":25, "compliment": {}, "available": {}},
+        "D02B05": {"companies":["PU017", "PU023", "PU024", "QT048", "PU051", "TR008", "TR010", "BC005"], "required":37, "compliment": {}, "available": {}},
+        "D02B07": {"companies":["PU021", "PU025", "PU030", "PU041", "PU044", "TR015", "TR020", "RC001", "BC007", "DC002"], "required":42, "compliment": {}, "available": {}},
+        "D02B10": {"companies":["PU035", "PU052", "PU053", "PU055", "TR017", "TR027", "BC010"], "required":31, "compliment": {}, "available": {}},
+        "D02B11": {"companies":["PU027", "PU031", "PU046", "PU047", "PU049", "TR023", "RC003", "BC011"], "required":33, "compliment": {}, "available": {}},
+        "D02B20": {"companies":["BC020", "ES201", "ES202", "ES203", "ES204", "ES205"], "required": 6, "compliment": {}, "available": {}}
+    }
 
-        
+ 
     @staticmethod
     def ISO_8601_reformatter(start_and_end_time: tuple) -> tuple[datetime,datetime]:
         sdate, stime = start_and_end_time[0].split('T')
@@ -23,7 +41,7 @@ class ReportType:
 
     @staticmethod
     def get_tupled_times(data: Dict[str, str]) -> Tuple[str, str]:
-        return data["shift_start"], data["shift_end"]
+        return (data["shift_start"], data["shift_end"])
 
     @staticmethod
     def currently_working(tupled_times: Tuple[datetime, datetime]) -> bool:
@@ -44,7 +62,7 @@ class ReportType:
 
     @staticmethod
     def get_company(data: Dict[str, str]) -> str:
-        return data["unit"]
+        return data["company"]
     @staticmethod
     def get_name(data: Dict[str, str]) -> str:
         return data["name"]
@@ -60,7 +78,7 @@ class ReportType:
     @staticmethod
     def get_shift(data: Dict[str, str]) -> str:
         return data["shift"]
-
+    
     @staticmethod
     def get_region(data: Dict[str, str]) -> str:
         return data["region"]
@@ -78,6 +96,10 @@ class ReportType:
     @staticmethod
     def off_duty(data: Dict[str, str]) -> bool:
         return data['is_working'] == 'false'
+            
+    @staticmethod
+    def is_on_vcall(data: dict[str, str]) -> bool:
+        return data['paycode'] == 'VCALL'
 
     @staticmethod
     def right_now(data: Dict[str, str]) -> bool:
@@ -95,7 +117,6 @@ class ReportType:
         else:
             False
 
-
     @staticmethod
     def region_in_field(data: Dict[str, str]) -> bool:
         region = data["region"]
@@ -103,8 +124,15 @@ class ReportType:
         return is_field
     
     @staticmethod
+    def company_in_field(data: Dict[str, str]) -> bool:
+        company = data["company"]
+        for companies in ReportType.BATTALION_DICT.values():
+            if company in companies:
+                return True
+    
+    @staticmethod
     def bc_or_dc_working(data: Dict[str, str]) -> bool:
-        unit = data["unit"]
+        unit = data["company"]
         rank = data["rank"]
         pattern = r'^[ABD][C,D]\d{3}$'
         is_chief_unit = re.search(pattern, unit)
@@ -167,9 +195,9 @@ class ReportType:
         if match:
             return  str(match[0])
         else:
-            return 'None'
-   
+            return None
 
-
-        
-        
+start = datetime.strptime('2023-05-05 06:09:00.00',"%Y-%m-%d %H:%M:%S.%f")
+end = datetime.strptime('2023-05-05 19:00:00.00',"%Y-%m-%d %H:%M:%S.%f")
+test = ReportType.currently_working((start,end))
+test

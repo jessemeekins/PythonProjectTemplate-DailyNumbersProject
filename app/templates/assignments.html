@@ -1,0 +1,72 @@
+{% extends 'index.html' %}
+
+{% block title %}
+Daily Numbers
+{% endblock %}
+
+{% block content %}
+
+<body>
+    <h1>Assignment Report</h1>
+    <form>
+        <label for="search">Search:</label>
+        <input type="text" id="search" name="search" placeholder="Enter search terms separated by commas">
+        <input type="submit" value="Submit">
+    </form>
+    <br>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Shift</th>
+                <th>Division</th>
+                <th>Region</th>
+                <th>Company</th>
+                <th>EID</th>
+                <th>Rank</th>
+                <th>Last Name</th>
+                <th>First Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            <h1>Shifts</h1>
+            {% for shift, divisions in data.items() %}
+            <h2>{{ shift }}</h2>
+            {% for division, regions in divisions.items() %}
+            <h3>{{ division }}</h3>
+            {% for region, companies in regions.items() %}
+            <h4>{{ region }}</h4>
+            {% for company, assignments in companies.items() %}
+            <h5>{{ company }}</h5>
+            <ul>
+                {% for assignment in assignments %}
+                <li>{{ assignment.eid }} | {{ assignment.rank }} | {{ assignment.last }}, {{ assignment.first }}</li>
+                {% endfor %}
+            </ul>
+            {% endfor %}
+            {% endfor %}
+            {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+    
+
+    <script>
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+
+        for (i = 0; i < coll.length; i++) {
+            coll[i].addEventListener("click", function() {
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.display === "block") {
+                    content.style.display = "none";
+                } else {
+                    content.style.display = "block";
+                }
+            });
+        }
+    </script>
+</body>
+
+{% endblock %}
+

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, url_for, request
 from main_project_folder import *
 from main_project_folder.report_type import (
     ComplimentReport, FullRosterReport
@@ -45,7 +45,11 @@ def daily_numbers():
         SHIFT=shift
     )
 
-
+@app.route('/<date>/<arg>')
+def specific_date(date:str, arg:str):
+    data= main(arg.upper(), date=date)
+    render_template('basic.html', DATA=data)
+    
 @app.route("/<arg>")
 def general (arg:str):
     data = main(arg.upper())
@@ -55,6 +59,14 @@ def general (arg:str):
 def detailed_personnel():
     detailed = main("DETAILED")
     return render_template("detailed.html", DETAILED=detailed)
+
+@app.route("/assignments", methods=["GET", "POST"])
+def assignment():
+    detailed = main("PPL")
+    search_terms = []
+    if request.method == 'POST': 
+        search_terms = request.form['search'].split(',')
+    return render_template("assignments.html", data=detailed, search_terms=search_terms)
 
     
 

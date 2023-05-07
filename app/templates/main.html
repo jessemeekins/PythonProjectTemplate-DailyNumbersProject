@@ -72,7 +72,7 @@ Daily Numbers
                         <tr>
                             <td>{{ battalion[3:] }}</td>
                             <td>
-                                {% for personnel_unit in personnel_units %}
+                                {% for personnel_unit in personnel_units["companies"] %}
                                 {% if personnel_unit in ALS %}
                                 <span class="badge bg-primary">{{ personnel_unit }}</span>
                                 {% else %}
@@ -132,9 +132,9 @@ Daily Numbers
                         <tr>
                             <td>{{ k[3:] }}</td>
                             <td>
-                                <span class="badge bg-primary">{{ v[0] }}</span>
+                                <span class="badge bg-primary">{{ v["compliment"].__len__() }}</span>
                             </td>
-                            <td>{{ v[1] }} </td>
+                            <td>{{ v["required"] }} </td>
                             <td></td>
                             
                         </tr>

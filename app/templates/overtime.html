@@ -1,0 +1,68 @@
+<!-- child.html -->
+
+{% extends 'index.html' %}
+
+{% block title %}
+Daily Numbers
+{% endblock %}
+
+{% block content %}
+
+
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <ul class="nav nav-pills" id="myTab" role="tablist">
+                    {% for battalion in DATA %}
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link {% if loop.first %}active{% endif %}" id="{{ battalion }}-tab" data-bs-toggle="tab" data-bs-target="#{{ battalion }}" type="button" role="tab" aria-controls="{{ battalion }}" aria-selected="{% if loop.first %}true{% else %}false{% endif %}">
+                            {{ battalion[3:] }}
+                        </button>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    {% for battalion, personnel in DATA.items() %}
+                    <div class="tab-pane fade {% if loop.first %}show active{% endif %}" id="{{ battalion }}" role="tabpanel" aria-labelledby="{{ battalion }}-tab">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Assigned Battalion</th>
+                                    <th></th>
+                                    <th>Rank</th>
+                                    <th>Detailed Personnel</th>
+                                    <th>CurrentBatt</th>
+                                    <th>Company</th>
+                                    <th>Paycode</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for person in personnel %}
+                                <tr>
+                                    <td>Battalion {{ battalion[4:] }}</td>
+                                    
+                                    <td></td>
+                                    {% endif %}
+                                    <td>
+                                        <span class="badge bg-primary">{{ person[0] }}</span>
+                                    </td>
+                                    <td>{{ person[1] }}</td>
+                                    <td>{{ person[2] }}</td>
+                                    <td>{{ person[3] }}</td>
+                                    <td>{{ person[5] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}

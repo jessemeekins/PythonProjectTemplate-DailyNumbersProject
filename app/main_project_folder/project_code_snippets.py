@@ -1,17 +1,19 @@
 #%%
 from functools import reduce
 
-def even(x) -> bool:
-    return x%2==0 
 
+#%%
 def multiply(*args):
     return reduce(lambda x, y: x*y, args)
 
-
+s = multiply(4,6,7,8,4,3,2,343,567,7)
+s
+#%%
 def first_true(iterable, default=False, pred=None):
     return next(filter(pred, iterable), default)
 
 #%%
+
 first_true(["y",5,7,10],default=False, pred=lambda x: x == 'y')
 
 #%%

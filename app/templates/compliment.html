@@ -1,0 +1,34 @@
+{% extends 'index.html' %}
+
+{% block title %}
+Daily Numbers
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Battalion</th>
+                    <th>Required</th>
+                    <th>Compliment</th>
+                    <th>Available</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                {% for k, v in DATA.items() %}
+                    <tr>
+                        <td>{{ k }}</td>
+                        <td>{{ v["required"] }}</td>
+                        <td>{{ v["compliment"].__len__() }}</td>
+                        <td>{{ v["available"] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+{% endblock %}

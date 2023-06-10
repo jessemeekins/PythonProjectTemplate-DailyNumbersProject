@@ -30,13 +30,17 @@ class FilePathFactory:
 
 
 FILE_PATH_FACTORY = {
+    "JSON": FilePathFactory(
+        Path("/Users/jessemeekins/Documents/VS_CODE/PythonProjectTemplate/app/data/json/"),
+             f"full_roster_export{ADJUSTED_FILE_DATE}.json "
+    ),
     "ALS": FilePathFactory(
         Path("/Users/jessemeekins/Documents/VS_CODE/PythonProjectTemplate/app/data/exports/"),
         f"ROS11 MFD{ADJUSTED_FILE_DATE}.xml"
     ),
     "PPL": FilePathFactory(
         Path("/Users/jessemeekins/Documents/VS_CODE/PythonProjectTemplate/app/data/exports/"),
-        "person-export-.xml"
+        "full_assignment.xml"
     ),
     "FULL": FilePathFactory(
         Path("/Users/jessemeekins/Documents/VS_CODE/PythonProjectTemplate/app/data/exports/"),
@@ -45,7 +49,11 @@ FILE_PATH_FACTORY = {
     "PAYCODES": FilePathFactory(
         Path("/Users/jessemeekins/Documents/VS_CODE/PythonProjectTemplate/app/data/exports/"),
         f'Full Roster Export Hourly{ADJUSTED_FILE_DATE}_{ADJUSTED_FILE_DATE}.xml'
-    )
+    ),
+    "ASSIGN": FilePathFactory(
+        Path("/Users/jessemeekins/Documents/VS_CODE/PythonProjectTemplate/app/data/exports/"),
+        'full_assignment.csv'
+    ),
 }
 
 

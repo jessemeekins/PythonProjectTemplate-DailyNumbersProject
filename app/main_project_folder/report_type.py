@@ -5,6 +5,8 @@ See project 'license' file for more informations
 import json
 import re
 import pandas as pd
+from openpyxl import Workbook
+from openpyxl.styles import Alignment, Font
 from typing import (
     Dict, List, Set, 
     Tuple, Union, Any
@@ -104,7 +106,7 @@ class AssignmentReport(ReportType):
         return assignments
 
   
-    def save_assignments_to_excel(self, assignments: dict, filename: str):
+    def save_assignments_to_excel(self, assignments: dict, filename: str, grouped=False):
         # Create an empty DataFrame to hold the results
         df = pd.DataFrame(columns=["Shift", "Division", "Battalion", "Company", "EID", "Rank", "Last", "First"])
 
@@ -119,8 +121,66 @@ class AssignmentReport(ReportType):
                                         ignore_index=True)
 
         # Save the DataFrame to Excel
-        df.to_excel(filename, index=False)
-            
+        if grouped == False:
+            writer = pd.ExcelWriter(filename, engine="openpyxl")
+            df.to_excel(writer, index=False, sheet_name="Assignments")
+            workbook = writer.book
+            worksheet = writer.sheets["Assignments"]
+
+            # Add styling
+            header_font = Font(bold=True)
+            alignment = Alignment(horizontal="center")
+
+            for col_letter in range(ord("A"), ord("H") + 1):
+                col_letter = chr(col_letter)
+                header_cell = worksheet[col_letter + "1"]
+                header_cell.font = header_font
+                header_cell.alignment = alignment
+                worksheet.column_dimensions[col_letter].width = 15
+
+            # Save the Excel file
+            writer.save()
+            writer.close()
+        
+        if grouped == True:
+
+            # Group the data by columns
+            grouped = df.groupby(["Shift", "Division", "Battalion", "Company"])
+
+            # Create a new Excel workbook and get the active sheet
+            workbook = Workbook()
+            worksheet = workbook.active
+            worksheet.title = "Assignments"
+
+            # Add styling to the header row
+            header_font = Font(bold=True)
+            alignment = Alignment(horizontal="center")
+
+            for col_num, column_name in enumerate(df.columns, start=1):
+                cell = worksheet.cell(row=1, column=col_num)
+                cell.value = column_name
+                cell.font = header_font
+                cell.alignment = alignment
+                worksheet.column_dimensions[worksheet.cell(row=1, column=col_num).column_letter].width = 15
+
+            # Write the grouped data to separate worksheets
+            row_num = 2  # Start writing from the second row
+            for group_name, group_data in grouped:
+                group_data.reset_index(drop=True, inplace=True)  # Reset the index for each group
+                for col_num, column_value in enumerate(group_name, start=1):
+                    cell = worksheet.cell(row=row_num, column=col_num)
+                    cell.value = column_value
+                for col_num, column_value in enumerate(group_data.columns, start=len(group_name) + 1):
+                    cell = worksheet.cell(row=row_num, column=col_num)
+                    try:
+                        cell.value = group_data[column_value]
+                    except:
+                        pass
+                row_num += 1
+
+            # Save the Excel file
+            workbook.save(filename)
+                    
     
     def __call__(self) -> List[Tuple[str, str, str, str, str, str, List[str]]]:
         assignments = self.group_assignments()
@@ -142,9 +202,7 @@ class OnDutyChiefs(ReportType):
                 rank = value["rank"]
                 name = value["name"]
                 company = value["company"]
-                if rank == "DC-FIRE":
-                    chiefs[company] = name
-                elif rank == "BC-FIRE" or "BC-EMS" or "BC-ARC":
+                if rank == "BC-FIRE" or "BC-EMS" or "BC-ARC":
                     chiefs[company] = name
                 else:
                     pass
@@ -165,32 +223,37 @@ class PayCodes(ReportType):
         ("Suspended", r"SWOP|SWP"),
         ("Sick Leave", r"SL"),
         ("LWOP", r"LWOP|FLWOP"),
-        ("OJI", r"OJI|LD"),
+        ("OJI", r"OJI"),
+        ("LD", r"LD"),
     ]
 
     def __init__(self, data: Dict[str, Dict[str, str]]) -> None:
         self.data = data
+        self.current_shift = self.get_current_shift(self.data)
 
+    def is_supposed_to_be_at_work(self, record) -> bool:
+        is_shift = self.get_shift_specialty(self.current_shift, record)
+        is_field = self.is_field_compliment(record)
+        right_now = self.right_now(record)
+        is_working = self.on_duty(record)
+
+        if is_field and is_shift and is_working and right_now:
+            return True
+        
+    def get_available(self) -> dict:
+        available_personnel = list()
+        for record in self.data.values():
+            is_true = self.is_supposed_to_be_at_work(record)
+            if is_true:
+                available_personnel.append(record)
+        return len(available_personnel)
        
     def payroll_code_count(self) -> Dict[str, List[Dict[str, str]]]:
         grouped = dict()
-        TODAYS_SHIFT = self.get_current_shift(self.data)
+        TODAYS_SHIFT = self.current_shift
         
         for record in self.data.values():
-            try:
-                location = record["location"]
-            except:
-                location = None 
-            if location == "FIELD":
-                shift = self._get_shift_specialty(record)
-                company = self.get_specialty_company(record)
-                for battalion, companies in ComplimentReport.BATTALION_DICT.items():
-                    if company in companies:
-                        assigned_region = battalion
-            
-
             is_field = self.region_in_field(record)
-
             right_now = self.right_now(record)
             paycode = record["paycode"]
 
@@ -224,9 +287,10 @@ class PayCodes(ReportType):
         return len(num_working)
                 
     def __call__(self):
+        available = self.get_available()
         num = self.total_people()
         paycode = self.paycode_count()
-        print(num)
+        print(num, available)
         return {"paycode": paycode}
     
 
@@ -239,16 +303,18 @@ class RankCounts(ReportType):
         for value in self.data.values():
             is_field = self.region_in_field(value)
             off_duty = self.off_duty(value)
+            is_vcall = self.is_on_vcall(value)
 
-            if off_duty and is_field:
-                rank = value["rank"]
-                if rank[0] == '.':
-                    rank = rank[1:]
-                else:
-                    rank
-                if rank not in off_by_rank.keys():
-                    off_by_rank[rank] = []
-                off_by_rank[rank].append(value["name"])
+            if off_duty or is_vcall:
+                if is_field:
+                    rank = value["rank"]
+                    if rank[0] == '.':
+                        rank = rank[1:]
+                    else:
+                        rank
+                    if rank not in off_by_rank.keys():
+                        off_by_rank[rank] = []
+                    off_by_rank[rank].append(value["name"])
         return off_by_rank
 
     def off_by_rank_count(self) -> Dict[str, int]:
@@ -265,19 +331,19 @@ class RankCounts(ReportType):
 
 class ComplimentReport(ReportType):
     BATTALION_DICT = {
-        "D01B01": {"companies":["PU001", "PU002", "PU005", "PU007", "PU008", "TR002", "TR005", "TR013", "BC001", "DC001"], "required":31, "compliment": {}, "available": {}},
-        "D01B02": {"companies":["PU004", "PU015", "PU019", "PU026", "PU028", "TR011", "BC002"], "required":37, "compliment": {}, "available": {}},
-        "D01B03": {"companies":["PU010", "PU014", "PU020", "PU029", "PU032", "TR009", "RC002", "BC003"], "required":36, "compliment": {}, "available": {}},
-        "D01B06": {"companies":["PU011", "PU013", "PU016", "PU018", "PU022", "TR004", "TR007", "BC006", "AT001", "RH001"], "required":37, "compliment": {}, "available": {}},
-        "D01B08": {"companies":["PU034", "PU040", "PU042", "PU050", "QT057", "TR021", "BC008"], "required":31, "compliment": {}, "available": {}},
-        "D01B09": {"companies":["PU036", "QT037", "PU038", "PU039", "PU043", "PU045", "TR018", "TR019", "TR024", "BC009"], "required":41, "compliment": {}, "available": {}},
-        "D01BAC": {"companies":["PU033", "TR016", "AR001", "AR002", "AR003", "AC001"], "required":20, "compliment": {}, "available": {}},
-        "D02B04": {"companies":["QT054", "PU056", "PU058", "PU059", "TR030", "BC004"], "required":25, "compliment": {}, "available": {}},
-        "D02B05": {"companies":["PU017", "PU023", "PU024", "QT048", "PU051", "TR008", "TR010", "BC005"], "required":37, "compliment": {}, "available": {}},
-        "D02B07": {"companies":["PU021", "PU025", "PU030", "PU041", "PU044", "TR015", "TR020", "RC001", "BC007", "DC002"], "required":42, "compliment": {}, "available": {}},
-        "D02B10": {"companies":["PU035", "PU052", "PU053", "PU055", "TR017", "TR027", "BC010"], "required":31, "compliment": {}, "available": {}},
-        "D02B11": {"companies":["PU027", "PU031", "PU046", "PU047", "PU049", "TR023", "RC003", "BC011"], "required":33, "compliment": {}, "available": {}},
-        "D02B20": {"companies":["BC020", "ES201", "ES202", "ES203", "ES204", "ES205"], "required": 6, "compliment": {}, "available": {}}
+        "D01B01": {"companies":["PU001", "PU002", "PU005", "PU007", "PU008", "TR002", "TR005", "TR013", "BC001", "DC001"], "required":31, "compliment": dict(), "available": set(), "balance": int()},
+        "D01B02": {"companies":["PU004", "PU015", "PU019", "PU026", "PU028", "TR011", "BC002"], "required":37, "compliment": dict(), "available": set(), "balance": int()},
+        "D01B03": {"companies":["PU010", "PU014", "PU020", "PU029", "PU032", "TR009", "RC002", "BC003"], "required":36, "compliment": dict(), "available": set(), "balance": int()},
+        "D01B06": {"companies":["PU011", "PU013", "PU016", "PU018", "PU022", "TR004", "TR007", "BC006", "AT001", "RH001"], "required":37, "compliment": dict(), "available": set(), "balance": int()},
+        "D01B08": {"companies":["PU034", "PU040", "PU042", "PU050", "QT057", "TR021", "BC008"], "required":31, "compliment": dict(), "available": set(), "balance": int()},
+        "D01B09": {"companies":["PU036", "QT037", "PU038", "PU039", "PU043", "PU045", "TR018", "TR019", "TR024", "BC009"], "required":41, "compliment": dict(), "available": set(), "balance": int()},
+        "D01BAC": {"companies":["PU033", "TR016", "AR001", "AR002", "AR003", "AC001"], "required":20, "compliment": dict(), "available": set(), "balance": int()},
+        "D02B04": {"companies":["QT054", "PU056", "PU058", "PU059", "TR030", "BC004"], "required":25, "compliment": dict(), "available": set(), "balance": int()},
+        "D02B05": {"companies":["PU017", "PU023", "PU024", "QT048", "PU051", "TR008", "TR010", "BC005"], "required":37, "compliment": dict(), "available": set(), "balance": int()},
+        "D02B07": {"companies":["PU021", "PU025", "PU030", "PU041", "PU044", "TR015", "TR020", "RC001", "BC007", "DC002"], "required":42, "compliment": dict(), "available": set(), "balance": int()},
+        "D02B10": {"companies":["PU035", "PU052", "PU053", "PU055", "TR017", "TR027", "BC010"], "required":31, "compliment": dict(), "available": set(), "balance": int()},
+        "D02B11": {"companies":["PU027", "PU031", "PU046", "PU047", "PU049", "TR023", "RC003", "BC011"], "required":33, "compliment": dict(), "available": set(), "balance": int()},
+        "EMS": {"companies":["BC020", "ES201", "ES202", "ES203", "ES204", "ES205"], "required": 6, "compliment": dict(), "available": set(), "balance": int()}
     }
 
     def __init__(self, data: dict) -> None:
@@ -288,7 +354,8 @@ class ComplimentReport(ReportType):
         for value in self.data.values():
             has_shift = self.get_shift_specialty(self.current_shift, value)
             is_field = self.is_field_compliment(value)
-             
+            
+
             if has_shift and is_field:
                 company = self.get_specialty_company(value)
                 for battalion, companies in self.BATTALION_DICT.items():
@@ -297,25 +364,28 @@ class ComplimentReport(ReportType):
                         
                         assigned_region = battalion
                         break
+
                 else:
                     print(ValueError(f"Could not find battalion for {company}"))
                     ...
                 self.BATTALION_DICT[assigned_region]["compliment"][value["name"]] = value
+
+                
                 
         
     def get_available_personnel(self):
         for value in self.data.values():
             has_shift = self.get_shift_specialty(self.current_shift, value)
-            is_field = self.is_field_compliment(value)
             right_now = self.right_now(value)
-            is_onduty = self.on_duty()
-            if has_shift and right_now:
+            on_duty = self.on_duty(value)
+
+            if has_shift and right_now and on_duty:
                 comp = self.get_specialty_company(value)
-                name = value["name"]
                 
             for battalion ,companies in self.BATTALION_DICT.items():
                 if comp in companies:
                     region = battalion
+
             try:
                 if region in self.BATTALION_REQUIRED_AND_COMPLIMENT.keys() and region in self.BATTALION_DICT.keys():
                     self.BATTALION_REQUIRED_AND_COMPLIMENT[region] = set()
@@ -335,11 +405,19 @@ class ComplimentReport(ReportType):
             count_dict[batt]["compliment"] = (len(lst), min_req)
         return count_dict
 
+    def count_compliment_and_update_dict(self):
+        for battalion, companies in self.BATTALION_DICT.items():
+            compliment = companies["compliment"]
+            available = companies["availabe"]
+
+            self.BATTALION_DICT[battalion]["compliment"] = len(compliment)
+    
     def count_available(self):
         available = dict()
 
     def __call__(self):
         self.get_all_field_personnel()
+
         return {"data":self.BATTALION_DICT}
     
 
@@ -350,22 +428,23 @@ class DetailedPersonnel(ReportType):
         TODAYS_SHIFT = self.get_current_shift(self.data)
 
         detailed_personnel = dict()
-        for value in self.data.values():
+        for record in self.data.values():
   
-            is_field = self.is_field_compliment(value)
-            if is_field:
+            is_field = self.is_field_compliment(record)
+            is_right_now = self.right_now(record)
+            if is_field and is_right_now:
                 # Retrieve current roster data for each staffing record
                 # Returns strings
-                name: str = self.get_name(value)
-                rank: str = self.get_rank(value)
-                current_region: str = self.get_region(value)
-                current_company: str = self.get_company(value)
+                name: str = self.get_name(record)
+                rank: str = self.get_rank(record)
+                current_region: str = self.get_region(record)
+                current_company: str = self.get_company(record)
                 # Retrieve SPeciality information
-                specialty_company: str = self.get_specialty_company(value)
-                specialty_shift: str = self._get_shift_specialty(value)
-                is_off = self.off_duty(value)
+                specialty_company: str = self.get_specialty_company(record)
+                specialty_shift: str = self._get_shift_specialty(record)
+                is_off = self.off_duty(record)
                 assigned_region: str = None
-                is_on_vcall = self.is_on_vcall(value)
+                is_on_vcall = self.is_on_vcall(record)
 
 
 
@@ -378,13 +457,15 @@ class DetailedPersonnel(ReportType):
                             if assigned_region not in detailed_personnel:
                                 detailed_personnel[assigned_region] = []
                             
-                            detailed_personnel[assigned_region].append((rank, name, current_region, current_company, value["shift"], value['paycode']))
+                            detailed_personnel[assigned_region].append((rank, name, current_region, current_company, record["shift"], record['paycode']))
+                            ComplimentReport.BATTALION_DICT[assigned_region]['available'].add(name)
                         
                         if TODAYS_SHIFT == specialty_shift:
                             if is_off or is_on_vcall:
                                 if assigned_region not in detailed_personnel:
                                     detailed_personnel[assigned_region] = []
-                                detailed_personnel[assigned_region].append((rank, name, current_region, current_company, value["shift"], value["paycode"]))
+                                detailed_personnel[assigned_region].append((rank, name, current_region, current_company, record["shift"], record["paycode"]))
+                                ComplimentReport.BATTALION_DICT[assigned_region]['available'].add(name)
                                 ...
 
         return detailed_personnel
@@ -402,6 +483,7 @@ class DetailedPersonnel(ReportType):
         return sl
 
     def __call__(self):
+        print(ComplimentReport.BATTALION_DICT["EMS"])
         detailed = self.detailed_personnel()
         return {"detailed": detailed}
 
@@ -432,23 +514,23 @@ class FormulaIDAudit(ReportType):
             if is_field:
                 company = self.get_specialty_company(record)
                 shift = self._get_shift_specialty(record)
-                name = self.get_name(record)
+                first_name, last_name = record["first_name"], record['last_name']
 
                 if company != 'None' and shift != 'None':
-                    #employees["CORRECT"].update({name: (company,shift)})
+                    employees["CORRECT"].update({last_name+', '+first_name: (company,shift)})
                     ...
                 else:
-                    employees["INCORRECT"].update({name: (company,shift)})
+                    employees["INCORRECT"].update({last_name+', '+first_name: (company,shift)})
 
             else:
                 company = self.get_specialty_company(record)
                 shift = self._get_shift_specialty(record)
-                name = self.get_name(record)
+                first_name, last_name = record["first_name"], record['last_name']
 
                 if company == 'None' and  shift in ['None', None]:
                     ...
                 else:
-                    employees["INCORRECT"].update({name: (company,shift)})
+                    employees["INCORRECT"].update({last_name+', '+first_name: (company,shift)})
 
         return employees
 
@@ -461,7 +543,7 @@ class RosterAudit(ReportType):
     def check_for_duplicate_name_on_roster(self):
         CURRENT_SHIFT = self.get_current_shift(self.data)
         name_list = list()
-        duplicate_list = list()
+        duplicate_list = dict()
         for record in self.data.values():
             is_field = self.is_field_compliment(record)
             is_right_now = self.right_now(record)
@@ -473,8 +555,7 @@ class RosterAudit(ReportType):
                 if name not in name_list:
                     name_list.append(name)
                 else:
-                    duplicate_list.append((name, record["paycode"],record["company"], record["region"], record["rank"]))
-        print(duplicate_list)
+                    duplicate_list[name] = ({"paycode":record["paycode"], "company": record["company"], "region": record["shift_start"], 'rank': record["shift_end"]})
         return duplicate_list
     def __call__(self, *args: Any, **kwds: Any) -> Any:
         duplicates = self.check_for_duplicate_name_on_roster()
@@ -488,10 +569,11 @@ class OvertimeAudit(ReportType):
             is_field = self.region_in_field(record)
             is_right_now = self.right_now(record)
             paycode = self.get_paycode(record)
+            start, end = self.ISO_8601_reformatter((record["shift_start"], record["shift_end"]))
 
             if is_field and is_right_now:
-                if re.search(r"OT(CB|HO|R)?|EXT", paycode):
-                    overtime[record['name']] = {"company": record["company"],"code": paycode,"start": record["shift_start"], "end": record["shift_end"]}
+                if re.search(r"OTCB|OTHO|OTOR|EXT", paycode):
+                    overtime[record['name']] = {"company": record["company"],"paycode": paycode,"shift_start": start, "shift_end": end}
         return overtime
 
     def __call__(self, *args: Any, **kwds: Any) -> Any:

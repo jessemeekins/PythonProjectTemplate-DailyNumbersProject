@@ -32,3 +32,5 @@ class XmlDataParser:
 
     def __call__(self) -> dict:
         return self._parser_format()
+    
+

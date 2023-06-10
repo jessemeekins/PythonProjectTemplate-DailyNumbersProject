@@ -63,12 +63,17 @@ class ReportType:
     @staticmethod
     def get_company(data: Dict[str, str]) -> str:
         return data["company"]
+    
     @staticmethod
     def get_name(data: Dict[str, str]) -> str:
         return data["name"]
+    
     @staticmethod
     def get_rank(data: Dict[str, str]) -> str:
-        rank = data["rank"]
+        try:
+            rank = data["rank"]
+        except:
+            rank = "none"
         return rank
         
     @staticmethod
@@ -196,8 +201,3 @@ class ReportType:
             return  str(match[0])
         else:
             return None
-
-start = datetime.strptime('2023-05-05 06:09:00.00',"%Y-%m-%d %H:%M:%S.%f")
-end = datetime.strptime('2023-05-05 19:00:00.00',"%Y-%m-%d %H:%M:%S.%f")
-test = ReportType.currently_working((start,end))
-test

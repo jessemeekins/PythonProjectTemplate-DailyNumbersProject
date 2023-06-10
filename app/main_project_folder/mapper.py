@@ -43,7 +43,7 @@ class XmlAlsFieldsMap(DataFieldsMapper):
             ("company", 'PUnitAbrvCh'),
             ("rank", 'PosJobAbrvCh'),
             ("shift_start", 'StaffingStartDt'),
-            ("shift_end", 'ShiftEndDt'),
+            ("shift_end", 'StaffingEndDt'),
             ("is_working", 'WstatIsWorkingGm'),
         ]
         return super().__call__(record=record, fields=fields)
@@ -62,7 +62,7 @@ class FullExportFieldsMapper(DataFieldsMapper):
             ("company", 'PUnitAbrvCh'),
             ("rank", 'PosJobAbrvCh'),
             ("shift_start", 'StaffingStartDt'),
-            ("shift_end", 'ShiftEndDt'),
+            ("shift_end", 'StaffingEndDt'),
             ("specialties",'RscFormulaIDCh'),
         ]
         return super().__call__(record=record, fields=fields)
@@ -83,8 +83,4 @@ class AssignmentExportMapper(DataFieldsMapper):
         ]
         return super().__call__(record=record, fields=fields)
     
-class NewMap(DataFieldsMapper):
-    def field_mapper(self) -> list[tuple]:
-        fields = {
-            
-        }
+

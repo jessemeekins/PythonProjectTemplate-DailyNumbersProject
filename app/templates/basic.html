@@ -5,7 +5,7 @@ Daily Numbers
 {% endblock %}
 
 {% block content %}
-<div class="card">
+<div class="card shadow">
     <div class="card-body">
         <table class="table table-striped">
             <thead>
@@ -16,19 +16,23 @@ Daily Numbers
                     <th>Start</th>
                     <th>End</th>
                 </tr>
+                <tr>
+                    <td>TOTAL</td>
+                    <td>{{ DATA.items().__len__() }}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
             </thead>
             <tbody>
                 {% for k, v in DATA.items() %}
-               
                     <tr>
                         <td>{{ k }}</td>
                         <td>{{ v["company"] }}</td>
-                        <td>{{ v["code"] }}</td>
-                        <td>{{ v["start"] }}</td>
-                        <td>{{ v["end"] }}</td>
-                        
+                        <td>{{ v["paycode"] }}</td>
+                        <td>{{ v["shift_start"] }}</td>
+                        <td>{{ v["shift_end"] }}</td>
                     </tr>
-                
                 {% endfor %}
             </tbody>
         </table>

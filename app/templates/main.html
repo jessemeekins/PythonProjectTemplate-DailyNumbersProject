@@ -9,21 +9,21 @@ Daily Numbers
 {% block content %}
 <div class="row">
     <div class="col-md-4">
-        <div class="card">
+        <div class="card shadow">
             <div class="card-body">
                 <h4>Shift: {{ SHIFT[0] }}</h4>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card">
+        <div class="card shadow">
             <div class="card-body">
                 <h4>Division 1: {{ DIV1 }}</h4>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card">
+        <div class="card shadow">
             <div class="card-body">
                 <h4>Division 2: {{ DIV2 }}</h4>
             </div>
@@ -31,8 +31,8 @@ Daily Numbers
     </div>
 </div>
 <div class="row pt-4">
-    <div class="col-sm-4">
-        <div class="card">
+    <div class="col-sm-3">
+        <div class="card shadow">
             <div class="card-body">
                 <table class="table table-striped">
                     <thead>
@@ -42,44 +42,144 @@ Daily Numbers
                         </tr>
                     </thead>
                     <tbody>
-                        {% for k, v in CHIEFS.items() %}
-                            {% if "BC" in k %}
                             <tr>
-                                <td>{{ k }}</td>
+                                <td>BATT 1</td>
                                 <td>
-                                    <span class="badge bg-success">{{ v }}</span>
+                                    <span class="badge bg-success">{{ BC1 }}</span>
                                 </td>
                             </tr>
-                            {% endif %}
-                        {% endfor %}
+                            <tr>
+                                <td>BATT 2</td>
+                                <td>
+                                    <span class="badge bg-success">{{ BC2 }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>BATT 3</td>
+                                <td>
+                                    <span class="badge bg-success">{{ BC3 }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>BATT 6</td>
+                                <td>
+                                    <span class="badge bg-success">{{ BC6 }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>BATT 8</td>
+                                <td>
+                                    <span class="badge bg-success">{{ BC8 }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>BATT 9</td>
+                                <td>
+                                    <span class="badge bg-success">{{ BC9 }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>BATT AR-C</td>
+                                <td>
+                                    <span class="badge bg-success">{{ BCAR }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>BATT 4</td>
+                                <td>
+                                    <span class="badge bg-success">{{ BC4 }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>BATT 5</td>
+                                <td>
+                                    <span class="badge bg-success">{{ BC5 }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>BATT 7</td>
+                                <td>
+                                    <span class="badge bg-success">{{ BC7 }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>BATT 10</td>
+                                <td>
+                                    <span class="badge bg-success">{{ BC10 }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>BATT 11</td>
+                                <td>
+                                    <span class="badge bg-success">{{ BC11 }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>BATT 20</td>
+                                <td>
+                                    <span class="badge bg-success">{{ BC20 }}</span>
+                                </td>
+                            </tr>
+                           
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-    <div class="col-sm-8">
-        <div class="card">
+    <div class="col-sm-6">
+        <div class="card shadow">
             <div class="card-body">
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Battalion</th>
                             <th>Fire Companies: ALS Companies {{ NUMBER_OF_ALS }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for battalion, personnel_units in BATTALION_DICT.items() %}
                         <tr>
-                            <td>{{ battalion[3:] }}</td>
                             <td>
                                 {% for personnel_unit in personnel_units["companies"] %}
-                                {% if personnel_unit in ALS %}
-                                <span class="badge bg-primary">{{ personnel_unit }}</span>
-                                {% else %}
-                                <span class="badge bg-danger">{{ personnel_unit }}</span>
-                                {% endif %}
+                                    {% if "BC" in personnel_unit %}
+                                        <span></span>
+                                    {% else %}
+                                        {% if personnel_unit in ALS %}
+                                        <span class="badge bg-primary">{{ personnel_unit }}</span>
+                                        {% else %}
+                                        <span class="badge bg-danger">{{ personnel_unit }}</span>
+                                        {% endif %}
+                                    {% endif %}
                                 {% endfor %}
                             </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="card shadow">
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Comp.</th>
+                            <th>Req.</th>
+                            <th>Avail.</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for k, v in COMPLIMENT.items() %}
+                        <tr>
+                            <td>
+                                <span class="badge bg-primary">{{ v["compliment"].__len__() }}</span>
+                            </td>
+                            <td>{{ v["required"] }} </td>
+                            <td></td>
+                            <td></td>
+                            
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -90,7 +190,7 @@ Daily Numbers
 </div>
 <div class="row pt-4">
     <div class="col-sm-4">
-        <div class="card">
+        <div class="card shadow">
             <div class="card-body">
                 <table class="table table-striped">
                     <thead>
@@ -116,36 +216,7 @@ Daily Numbers
         </div>
     </div>
     <div class="col-sm-4">
-        <div class="card">
-            <div class="card-body">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Battalion</th>
-                            <th>Comp.</th>
-                            <th>Req.</th>
-                            <th>Act.</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for k, v in COMPLIMENT.items() %}
-                        <tr>
-                            <td>{{ k[3:] }}</td>
-                            <td>
-                                <span class="badge bg-primary">{{ v["compliment"].__len__() }}</span>
-                            </td>
-                            <td>{{ v["required"] }} </td>
-                            <td></td>
-                            
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-4">
-        <div class="card">
+        <div class="card shadow">
             <div class="card-body">
                 <table class="table table-striped">
                     <thead>
@@ -164,7 +235,7 @@ Daily Numbers
                                 {% elif v > 10 %}
                                 <span class="badge bg-warning">{{ v }}</span>
                                 {% else %}
-                                <span class="badge bg-info">{{ v }}</span>
+                                <span class="badge bg-primary">{{ v }}</span>
                                 {% endif %}
                             </td>
                         </tr>

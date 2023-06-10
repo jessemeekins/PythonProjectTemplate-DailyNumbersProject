@@ -28,28 +28,34 @@ exports=  {
         "source" : f"/Users/jessemeekins/Documents/VS_CODE/PythonProjectTemplate/app/data/exports/Full Roster Export Hourly{adjusted_shift_date}_{adjusted_shift_date}.xml",
         "destination" : f"/Users/jessemeekins/Documents/VS_CODE/mfd-numbers-nextjs/public/full_roster.json"
         },
+    "full_hist" : {
+        "source" : f"/Users/jessemeekins/Documents/VS_CODE/PythonProjectTemplate/app/data/exports/Full Roster Export Hourly{adjusted_shift_date}_{adjusted_shift_date}.xml",
+        "destination" : f"/Users/jessemeekins/Documents/VS_CODE/mfd-numbers-nextjs/public/full_roster_{adjusted_shift_date}.json"
+        },
     "assign" : {
         "source" : f"/Users/jessemeekins/Documents/VS_CODE/PythonProjectTemplate/app/data/exports/full_assignment.xml",
         "destination" : f"/Users/jessemeekins/Documents/VS_CODE/mfd-react/public/full_assignment.json"
     }
-    }
+}
 
-def main(report:str):
-    
-    file_path = exports.get(report)  
+def main(*reports:str):
+    for report in reports:    
+        file_path = exports.get(report)  
 
-    xml_to_json_converter(file_path["source"], file_path["destination"])
+        xml_to_json_converter(file_path["source"], file_path["destination"])
 
-    with open(file_path["destination"]) as f:
-        data = json.load(f)
+        with open(file_path["destination"]) as f:
+            data = json.load(f)
 
-    if report == "full":
-        records_list = data["DataRoot"]["Data"]["Records"]["Record"]
-    if report == "assign":
-        records_list = data["Data"]["Records"]["Record"]
+        if report == "full":
+            records_list = data["DataRoot"]["Data"]["Records"]["Record"]
+        if report == "assign":
+            records_list = data["Data"]["Records"]["Record"]
 
-    with open(file_path["destination"], 'w') as f:
-        json.dump(records_list, f)
+        with open(file_path["destination"], 'w') as f:
+            json.dump(records_list, f)
 
 if __name__ == "__main__":
-    main("assign")
+    main("assign", "full", "full_hist")
+    
+    

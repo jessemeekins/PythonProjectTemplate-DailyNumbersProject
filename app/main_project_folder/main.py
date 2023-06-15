@@ -10,7 +10,8 @@ from main_project_folder.report_type import (
     AssignmentReport, FullRosterReport,
     PayCodes, OnDutyChiefs, ComplimentReport,
     RankCounts, CurrentShift, DetailedPersonnel,
-    FormulaIDAudit, RosterAudit, OvertimeAudit
+    FormulaIDAudit, RosterAudit, OvertimeAudit,
+    PositionReport
 )
 from main_project_folder.mapper import (
     DataFieldsMapper, XmlAlsFieldsMap,
@@ -60,6 +61,8 @@ FACTORY = {
     "AUDIT" : FileFactoryExporter(XmlImporter, AssignmentExportMapper, XmlDataParser, FormulaIDAudit),
     "DUP" : FileFactoryExporter(XmlImporter, FullExportFieldsMapper, XmlDataParser, RosterAudit),
     "OT" : FileFactoryExporter(XmlImporter, FullExportFieldsMapper, XmlDataParser, OvertimeAudit),
+    "POS" : FileFactoryExporter(XmlImporter, XmlAlsFieldsMap, XmlDataParser, PositionReport),
+
 }
 
 now = DateTimeFormatter.local_timestamp()

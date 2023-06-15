@@ -1,3 +1,4 @@
+#%%
 """
 Copyright (c) 2023 Jesse Meekins
 See project 'license' file for more informations
@@ -582,3 +583,25 @@ class OvertimeAudit(ReportType):
 
     
     ...
+
+
+class PositionReport(ReportType):
+
+    def get_positions(self):
+        company_positions = ["Fire Lieutenant", "Fire Driver", "Fire Private", "Fire Private"]
+        positions = dict()
+        for record in self.data.values():
+            company = record["company"]
+            position = record["rank"]
+            
+            if company not in positions.keys():
+                positions[company] = []
+            positions[company] = company_positions 
+
+        print(positions)
+        return positions
+    def __call__(self, *args: Any, **kwds: Any) -> Any:
+        data = self.get_positions()
+        return {'data': data}
+
+

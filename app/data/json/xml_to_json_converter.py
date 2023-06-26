@@ -35,6 +35,10 @@ exports=  {
     "assign" : {
         "source" : f"/Users/jessemeekins/Documents/VS_CODE/PythonProjectTemplate/app/data/exports/full_assignment.xml",
         "destination" : f"/Users/jessemeekins/Documents/VS_CODE/mfd-react/public/full_assignment.json"
+    },
+    "server_test" : {
+        "source" : f"/Users/jessemeekins/Documents/VS_CODE/PythonProjectTemplate/app/data/exports/Full Roster Export Hourly{adjusted_shift_date}_{adjusted_shift_date}.xml",
+        "destination" : f"/Users/jessemeekins/Documents/VS_CODE/PythonProjectTemplate/app/data/json/full_roster.json"
     }
 }
 
@@ -56,6 +60,6 @@ def main(*reports:str):
             json.dump(records_list, f)
 
 if __name__ == "__main__":
-    main("assign", "full", "full_hist")
+    main("assign", "full", "full_hist", "server_test")
     
     
